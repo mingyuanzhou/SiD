@@ -7,7 +7,7 @@ This repository contains the code necessary to replicate the results of the "Sco
 - **Huangjie Zheng, Zhendong Wang, Hai Huang**: Worked closely with Mingyuan Zhou, co-developing essential components and writing various subfunctions.
 
 ### How to Use
-The one-step generators produced by SiD are provided in ...
+The one-step generators produced by SiD are provided in [huggingface/UT-Austin-PML/SiD](https://huggingface.co/UT-Austin-PML/SiD/tree/main)
 
 Ready to Use:
 - sid_train.py
