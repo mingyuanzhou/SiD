@@ -6,7 +6,7 @@ This repository contains the code necessary to replicate the results of the "Sco
 - **Mingyuan Zhou**: Led the project and wrote the majority of the code.
 - **Huangjie Zheng, Zhendong Wang, Hai Huang**: Worked closely with Mingyuan Zhou, co-developing essential components and writing various subfunctions.
 
-
+### How to Use
 The one-step generators produced by SiD are provided in ...
 
 Ready to Use:
@@ -17,3 +17,9 @@ To DO:
 - Test sid_metrics.py
 - Test sid_generator.py
 
+
+### Acknowledgements
+
+We extend our gratitude to the authors of the **EDM paper** for sharing their code, which served as the foundational framework for developing SiD. The repository can be found here: [NVlabs/edm](https://github.com/NVlabs/edm).
+
+Additionally, we are thankful to the authors of the **Diff Instruct paper** for making their code available. Their contributions have been instrumental in integrating the evaluation pipeline into our training iterations. Their repository is accessible here: [pkulwj1994/diff_instruct](https://github.com/pkulwj1994/diff_instruct).
