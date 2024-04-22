@@ -1,0 +1,13 @@
+.idea
+__pycache__
+.ipynb_checkpoint
+.DS_Store
+.vscode
+sid-train-runs/
+
+*.pt
+*.pkl
+*.pth
+*.tar.gz
+*.zip
+.ipynb_checkpoints/
