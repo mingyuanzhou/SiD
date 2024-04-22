@@ -73,8 +73,8 @@ elif [ "$dataset" = 'imagenet64-cond' ]; then
     --tick 10 \
     --snap 50 \
     --dump 500 \
-    --lr 5e-6 \
-    --glr 5e-6 \
+    --lr 4e-6 \
+    --glr 4e-6 \
     --fp16 1 \
     --ls 1 \
     --lsg 100 \
