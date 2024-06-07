@@ -39,7 +39,7 @@ def sid_sampler(
     net, latents, class_labels=None, randn_like=torch.randn_like,init_sigma=2.5
 ):
     z = latents.to(torch.float64) * init_sigma
-    x = net(z, (init_sigma*torch.ones(z.shape[0],1,1,1)).to(z.device), class_labels,augment_labels=torch.zeros(z.shape[0], 9).to(z.device)).to(torch.float64)
+    x = net(z, (init_sigma*torch.ones(z.shape[0],1,1,1)).to(z.device), class_labels).to(torch.float64)
     return x
 
 def calculate_inception_stats(detector_url,
@@ -183,7 +183,7 @@ def save_fid(fid, fname):
 
 
 
-# @click.option('--image_outdir',                  help='Where to save the output images', metavar='DIR',                   type=str, required=True)
+@click.option('--outdir',                  help='Where to save the output images', metavar='DIR',                   type=str, required=True)
 @click.option('--seeds',                   help='Random seeds (e.g. 1,2,5-10)', metavar='LIST',                     type=parse_int_list, default='0-63', show_default=True)
 @click.option('--subdirs',                 help='Create subdirectory for every 1000 seeds',                         is_flag=True)
 @click.option('--class', 'class_idx',      help='Class label  [default: random]', metavar='INT',                    type=click.IntRange(min=0), default=None)
@@ -260,7 +260,6 @@ def main(**kwargs):
             class_labels[:, opts.class_idx] = 1
 
         # Generate images.
-        # sampler_kwargs = {key: value for key, value in sampler_kwargs.items() if value is not None}
         sampler_kwargs = {}
         images = sid_sampler(net, latents, class_labels, randn_like=rnd.randn_like,init_sigma=opts.init_sigma, **sampler_kwargs)
 
@@ -269,14 +268,8 @@ def main(**kwargs):
         image_dir = opts.outdir
         os.makedirs(image_dir, exist_ok=True)
         for seed, image_np in zip(batch_seeds, images_np):
-            #image_dir = os.path.join(opts.outdir, f'{seed-seed%1000:06d}') if opts.subdirs else opts.outdir
-            #os.makedirs(image_dir, exist_ok=True)
             image_path = os.path.join(image_dir, f'{seed:06d}.png')
             save_image(img=image_np,num_channel=image_np.shape[2],fname=image_path)
-            # if image_np.shape[2] == 1:
-            #     PIL.Image.fromarray(image_np[:, :, 0], 'L').save(image_path)
-            # else:
-            #     PIL.Image.fromarray(image_np, 'RGB').save(image_path)
 
     # Done.
     torch.distributed.barrier()

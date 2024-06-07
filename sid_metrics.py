@@ -67,7 +67,7 @@ class CommaSeparatedList(click.ParamType):
         return value.split(',')
     
 def calculate_metric(metric, G, init_sigma, dataset_kwargs, num_gpus, rank, device,data_stat):
-    return metric_main.calc_metric(metric=metric, metric_pt_path=metric_pt_path, G=G, init_sigma=init_sigma,
+    return metric_main.calc_metric(metric=metric, G=G, init_sigma=init_sigma,
         dataset_kwargs=dataset_kwargs, num_gpus=num_gpus, rank=rank, device=device,data_stat=data_stat)
 
 
@@ -102,7 +102,7 @@ def save_metric(result_dict, fname):
 @click.option('--metrics',       help='Comma-separated list or "none" [default: fid50k_full]',      type=CommaSeparatedList())
 # FID metric PT path
 @click.option('--network', 'network_pkl',  help='Network pickle filename', metavar='PATH|URL',                      type=str, required=True)
-
+@click.option('--outdir',      help='Path to store the output text file',  type=str, default='evalout')
 
 def main(**kwargs):
     """Distill pretraind diffusion-based generative model using the techniques described in the
@@ -125,18 +125,6 @@ Pretrained Diffusion Models for One-Step Generation".
     metrics = opts.metrics
     init_sigma = opts.init_sigma
     data_stat = opts.data_stat
-    
-    #if network_pkl is None:
-    #    network_pkl=opts.resume
-    
-    
-    #seeds = opts.seeds
-    #max_batch_size = opts.max_batch_size
-    # image_outdir = opts.image_outdir
-    
-    #num_batches = ((len(seeds) - 1) // (max_batch_size * dist.get_world_size()) + 1) * dist.get_world_size()
-    #all_batches = torch.as_tensor(seeds).tensor_split(num_batches)
-    #rank_batches = all_batches[dist.get_rank() :: dist.get_world_size()]
 
     # Rank 0 goes first.
     if dist.get_rank() != 0:
@@ -157,13 +145,9 @@ Pretrained Diffusion Models for One-Step Generation".
     
     dataset_kwargs = dnnlib.EasyDict(class_name='training.dataset.ImageFolderDataset', path=opts.data, use_labels=opts.cond)
     dataset_kwargs.resolution = G_ema.img_resolution
-    #network_kwargs.use_fp16=0
-    #network_kwargs.use_labels=0
     dataset_kwargs.max_size=2000000
     dist.print0(dataset_kwargs)
         
-    #, xflip=opts.xflip, cache=opts.cache)
-    #dataset_kwargs={}
     
     match = re.search(r"-(\d+)\.pkl$", network_pkl)
     if match:
@@ -175,7 +159,7 @@ Pretrained Diffusion Models for One-Step Generation".
     for i in range(10):    
         for metric in metrics:
             dist.print0(metric)
-            result_dict = calculate_metric(metric=metric, metric_pt_path=metric_pt_path, G=G_ema, init_sigma=init_sigma,
+            result_dict = calculate_metric(metric=metric, G=G_ema, init_sigma=init_sigma,
                 dataset_kwargs=dataset_kwargs, num_gpus=dist.get_world_size(), rank=dist.get_rank(), device=device,data_stat=data_stat)
             if dist.get_rank() == 0:
                 print(result_dict.results)

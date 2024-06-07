@@ -142,7 +142,7 @@ def main(network_pkl, outdir, subdirs, seeds, class_idx, max_batch_size, num_fid
         # Pick latents and labels.
         rnd = StackedRandomGenerator(device, batch_seeds)
         latents = rnd.randn([batch_size, net.img_channels, net.img_resolution, net.img_resolution], device=device)
-        sigma_G = sigma_G*torch.ones([batch_size, 1, 1, 1], device=device)
+        sigma = sigma_G*torch.ones([batch_size, 1, 1, 1], device=device)
         class_labels = None
         if net.label_dim:
             class_labels = torch.eye(net.label_dim, device=device)[rnd.randint(net.label_dim, size=[batch_size], device=device)]
@@ -150,7 +150,7 @@ def main(network_pkl, outdir, subdirs, seeds, class_idx, max_batch_size, num_fid
             class_labels[:, :] = 0
             class_labels[:, class_idx] = 1
 
-        images = net(sigma_G*latents, sigma_G, class_labels)
+        images = net(sigma_G*latents.to(torch.float64), sigma, class_labels).to(torch.float64)
 
         # Save images.
         images_np = (images * 127.5 + 128).clip(0, 255).to(torch.uint8).permute(0, 2, 3, 1).cpu().numpy()
