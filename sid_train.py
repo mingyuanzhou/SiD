@@ -1,9 +1,8 @@
 # Copyright (c) 2024, Mingyuan Zhou. All rights reserved.
 #
-# This work is licensed under a Creative Commons
-# Attribution-NonCommercial-ShareAlike 4.0 International License.
+# This work is licensed under APACHE LICENSE, VERSION 2.0
 # You should have received a copy of the license along with this
-# work. If not, see http://creativecommons.org/licenses/by-nc-sa/4.0/
+# work. If not, see https://www.apache.org/licenses/LICENSE-2.0.txt
 
 """Distill pretraind diffusion-based generative model using the techniques described in the
 paper "Score identity Distillation: Exponentially Fast Distillation of
@@ -73,8 +72,6 @@ class CommaSeparatedList(click.ParamType):
 @click.option('--xflip',         help='Enable dataset x-flips', metavar='BOOL',                     type=bool, default=False, show_default=True)
 
 # Performance-related.
-
-
 @click.option('--bench',         help='Enable cuDNN benchmarking', metavar='BOOL',                  type=bool, default=True, show_default=True)
 @click.option('--cache',         help='Cache dataset in CPU memory', metavar='BOOL',                type=bool, default=True, show_default=True)
 @click.option('--workers',       help='DataLoader worker processes', metavar='INT',                 type=click.IntRange(min=1), default=1, show_default=True)
@@ -89,9 +86,9 @@ class CommaSeparatedList(click.ParamType):
 @click.option('--transfer',      help='Transfer learning from network pickle', metavar='PKL|URL',   type=str)
 @click.option('--resume',        help='Resume from previous training state', metavar='PT',          type=str)
 @click.option('-n', '--dry-run', help='Print training options and exit',                            is_flag=True)
-
 @click.option('--metrics',       help='Comma-separated list or "none" [default: fid50k_full]',      type=CommaSeparatedList())
 @click.option('--edm_model',     help='edm_model', type=str)
+
 
 # Parameters for SiD
 @click.option('--init_sigma',    help='Noise standard deviation that is fixed during distillation and generation', metavar='FLOAT', type=click.FloatRange(min=0, min_open=True), default=2.5, show_default=True)
@@ -123,7 +120,7 @@ Pretrained Diffusion Models for One-Step Generation".
     --batch 256 \
     --batch-gpu 16 \
     --outdir 'image_experiment/sid-train-runs/cifar10' \
-    --data 'image_experiment/datasets/cifar10-32x32.zip' \
+    --data '/data/datasets/cifar10-32x32.zip' \
     --arch ddpmpp \
     --batch 256 \
     --edm_model cifar10-uncond \
@@ -152,7 +149,6 @@ Pretrained Diffusion Models for One-Step Generation".
     c.loss_kwargs = dnnlib.EasyDict()
 
     c.fake_score_optimizer_kwargs = dnnlib.EasyDict(class_name='torch.optim.Adam', lr=opts.lr, betas=[0.0, 0.999], eps = 1e-8 if not opts.fp16 else 1e-6)
-    #c.g_optimizer_kwargs = dnnlib.EasyDict(class_name='torch.optim.Adam', lr=opts.glr, betas=[0.0, 0.999], eps = 1e-8 if not opts.fp16 else 1e-6)
     c.g_optimizer_kwargs = dnnlib.EasyDict(class_name='torch.optim.Adam', lr=opts.glr, betas=[opts.g_beta1, 0.999], eps = 1e-8 if not opts.fp16 else 1e-6)
     
     c.init_sigma = opts.init_sigma
@@ -182,7 +178,7 @@ Pretrained Diffusion Models for One-Step Generation".
 
     # Preconditioning & loss function.
     assert opts.precond == 'edm'
-    #The current code only accepted pretrained edm checkpoint, needs to modify accordingly for the checkpoints of other types of diffusion models
+    #The current SiD code only accepted pretrained edm checkpoint, needs to modify accordingly for the checkpoints of other types of diffusion models
     c.network_kwargs.class_name = 'training.networks.EDMPrecond'
     c.loss_kwargs.class_name = 'training.sid_loss.SID_EDMLoss'
     c.metrics = opts.metrics
@@ -246,7 +242,9 @@ Pretrained Diffusion Models for One-Step Generation".
         desc += f'-{opts.desc}'
     
     
-    if opts.nosubdir:
+    if dist.get_rank() != 0:
+        c.run_dir = None
+    elif opts.nosubdir:
         c.run_dir = opts.outdir
     else:
         prev_run_dirs = []

@@ -2,10 +2,11 @@
 
 dataset=$1
 
-# Uncomment to set CUDA visible devices and run specific script
+# Run the code below in command window to set CUDA visible devices and run specific script
 
-# export CUDA_VISIBLE_DEVICES=0,1,2,3
-# sh run_sid.sh 'cifar10-uncond' 
+#export CUDA_VISIBLE_DEVICES=0,1,2,3
+#sh run_sid.sh 'cifar10-uncond' 
+
 
 # Modify --duration to reproduce the reported results
 
@@ -20,7 +21,7 @@ if [ "$dataset" = 'cifar10-uncond' ]; then
     --batch 256 \
     --batch-gpu 16 \
     --outdir 'image_experiment/sid-train-runs/cifar10-uncond' \
-    --data 'image_experiment/datasets/cifar10-32x32.zip' \
+    --data '/data/datasets/cifar10-32x32.zip' \
     --arch ddpmpp \
     --edm_model cifar10-uncond \
     --metrics fid50k_full,is50k \
@@ -43,7 +44,7 @@ elif [ "$dataset" = 'cifar10-cond' ]; then
     --batch 256 \
     --batch-gpu 16 \
     --outdir 'image_experiment/sid-train-runs/cifar10-cond' \
-    --data 'image_experiment/datasets/cifar10-32x32.zip' \
+    --data '/data/datasets/cifar10-32x32.zip' \
     --arch ddpmpp \
     --edm_model cifar10-cond \
     --metrics fid50k_full \
@@ -66,7 +67,7 @@ elif [ "$dataset" = 'imagenet64-cond' ]; then
     --batch 8192 \
     --batch-gpu 16 \
     --outdir 'image_experiment/sid-train-runs/imagenet64-cond' \
-    --data 'image_experiment/datasets/imagenet-64x64.zip' \
+    --data '/data/datasets/imagenet-64x64.zi' \
     --arch adm \
     --edm_model imagenet64-cond \
     --metrics fid50k_full \
@@ -94,7 +95,7 @@ elif [ "$dataset" = 'ffhq64' ]; then
     --batch 512 \
     --batch-gpu 32 \
     --outdir 'image_experiment/sid-train-runs/ffhq64' \
-    --data 'image_experiment/datasets/ffhq-64x64.zip' \
+    --data '/data/datasets/ffhq-64x64.zip' \
     --arch ddpmpp \
     --edm_model ffhq64 \
     --metrics fid50k_full \
@@ -123,7 +124,7 @@ elif [ "$dataset" = 'afhq64-v2' ]; then
     --batch 512 \
     --batch-gpu 32 \
     --outdir 'image_experiment/sid-train-runs/afhq64-v2' \
-    --data 'image_experiment/datasets/afhqv2-64x64.zip' \
+    --data '/data/datasets/afhqv2-64x64.zip' \
     --arch ddpmpp \
     --edm_model imagenet64-cond \
     --metrics fid50k_full \

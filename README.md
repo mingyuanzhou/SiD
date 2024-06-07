@@ -1,6 +1,15 @@
 # Distilling Pretrained Diffusion-Based Generative Models
 
-This repository contains the code necessary to replicate the results of the "Score Identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation" paper. The technique, Score Identity Distillation (SiD), is applied to distill pretrained EDM diffusion models. SiD demonstrates superior performance compared to the teacher EDM model across all datasets, with the exception of ImageNet 64x64.
+This repository contains the code necessary to replicate the results of the "Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation" paper. The technique, Score identity Distillation (SiD), is applied to distill pretrained EDM diffusion models. SiD demonstrates superior performance compared to the teacher EDM model across all datasets, with the exception of ImageNet 64x64. It can achieve the following Fréchet Inception Distances (FID):
+
+| Dataset              | FID   |
+|----------------------|-------|
+| CIFAR10 Unconditional| 1.923 |
+| CIFAR10 Conditional  | 1.710 |
+| ImageNet 64x64       | 1.524 |
+| FFHQ 64x64           | 1.550 |
+| AFHQ-v2 64x64        | 1.628 |
+
 
 ## Prerequisites
 
@@ -39,6 +48,17 @@ After creating the environment, you can activate it by running:
 conda activate sid
 ```
 
+### Prepare the Datasets
+
+Follow the instructions detailed in the [EDM codebase](https://github.com/NVlabs/edm/tree/main?tab=readme-ov-file#preparing-datasets) to prepare the training datasets. Once prepared, place them into the `/data/datasets/` folder:
+
+- `cifar10-32x32.zip`
+- `imagenet-64x64.zip`
+- `ffhq-64x64.zip`
+- `afhqv2-64x64.zip`
+
+**Note:** Although a training dataset is not necessary for distilling the pretrained EDM model, it is used in our code to calculate evaluation metrics such as FID and Inception Score. Optionally, you can create a dummy dataset and either disable the evaluation code if you wish to run the SID distillation code without these metrics, or provide an npz file of the training dataset if you need to compute these metrics.
+
 ## Usage
 
 After activating the environment, you can run the scripts or use the modules provided in the repository. Example:
@@ -69,7 +89,6 @@ We extend our gratitude to the authors of the **EDM paper** for sharing their co
 Additionally, we are thankful to the authors of the **Diff Instruct paper** for making their code available. Their contributions have been instrumental in integrating the evaluation pipeline into our training iterations. Their repository is accessible here: [pkulwj1994/diff_instruct](https://github.com/pkulwj1994/diff_instruct).
 
 
-Certainly! Here's the README content formatted in Markdown, ready for you to copy and paste into your GitHub repository's README file:
 
 ### Code Contributions
 - **Mingyuan Zhou**: Led the project and wrote the majority of the code.
@@ -94,4 +113,4 @@ If you want to contact me you can reach me at `mingyuan.zhou@mccombs.utexas.edu`
 
 ## License
 
-This project uses the following license: [license_name](link_to_license).
+This project uses the following license: [CC4.0](README.md).
