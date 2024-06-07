@@ -1,6 +1,10 @@
 # Distilling Pretrained Diffusion-Based Generative Models
 
-This repository contains the code necessary to replicate the results of the "Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation" paper. The technique, Score identity Distillation (SiD), is applied to distill pretrained EDM diffusion models. SiD demonstrates superior performance compared to the teacher EDM model across all datasets, with the exception of ImageNet 64x64. It can achieve the following Fréchet Inception Distances (FID):
+This repository contains the code necessary to replicate the findings of our ICML 2024 paper titled "Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation." The technique, Score identity Distillation (SiD), is used to distill pretrained EDM diffusion models.
+
+SiD operates as a data-free distillation method but still demonstrates superior performance compared to the teacher EDM model across most datasets, with the notable exception of ImageNet 64x64. It outperforms all previous diffusion distillation approaches—whether one-step or few-step, data-free or training data-dependent—in terms of generation quality. This achievement sets new standards for efficiency and effectiveness in diffusion distillation.
+
+It achieves the following Fréchet Inception Distances (FID):
 
 | Dataset              | FID   |
 |----------------------|-------|
@@ -64,7 +68,7 @@ Follow the instructions detailed in the [EDM codebase](https://github.com/NVlabs
 After activating the environment, you can run the scripts or use the modules provided in the repository. Example:
 
 ```bash
-sh run_sid.sh
+sh run_sid.sh 'cifar10-uncond'
 ```
 
 ### Training

@@ -3,10 +3,8 @@
 dataset=$1
 
 # Run the code below in command window to set CUDA visible devices and run specific script
-
 #export CUDA_VISIBLE_DEVICES=0,1,2,3
 #sh run_sid.sh 'cifar10-uncond' 
-
 
 # Modify --duration to reproduce the reported results
 
@@ -89,7 +87,7 @@ elif [ "$dataset" = 'imagenet64-cond' ]; then
     
 elif [ "$dataset" = 'ffhq64' ]; then
     torchrun --standalone --nproc_per_node=4 sid_train.py \
-    --alpha 1.0 \
+    --alpha 1.2 \
     --tmax 800 \
     --init_sigma 2.5 \
     --batch 512 \
@@ -118,7 +116,7 @@ elif [ "$dataset" = 'ffhq64' ]; then
            
 elif [ "$dataset" = 'afhq64-v2' ]; then
     torchrun --standalone --nproc_per_node=4 sid_train.py \
-    --alpha 1.2 \
+    --alpha 1.0 \
     --tmax 800 \
     --init_sigma 2.5 \
     --batch 512 \

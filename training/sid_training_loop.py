@@ -1,9 +1,8 @@
 # Copyright (c) 2024, Mingyuan Zhou. All rights reserved.
 #
-# This work is licensed under a Creative Commons
-# Attribution-NonCommercial-ShareAlike 4.0 International License.
+# This work is licensed under APACHE LICENSE, VERSION 2.0
 # You should have received a copy of the license along with this
-# work. If not, see http://creativecommons.org/licenses/by-nc-sa/4.0/
+# work. If not, see https://www.apache.org/licenses/LICENSE-2.0.txt
 
 """Distill pretraind diffusion-based generative model using the techniques described in the
 paper "Score identity Distillation: Exponentially Fast Distillation of
@@ -290,7 +289,7 @@ def training_loop(
     dist.print0('Exporting sample images...')
 
     
-    if 1: #resume_training is None: 
+    if resume_training is None: 
         if dist.get_rank() == 0:
             images = torch.cat([G_ema(z, init_sigma*torch.ones(z.shape[0],1,1,1).to(z.device).to(z.dtype), c, augment_labels=torch.zeros(z.shape[0], 9).to(z.device).to(z.dtype)).cpu() for z, c in zip(grid_z, grid_c)]).numpy()
             save_image_grid(img=images, fname=os.path.join(run_dir, f'fakes_{alpha:03f}_{cur_nimg//1000:06d}.png'), drange=[-1,1], grid_size=grid_size)
