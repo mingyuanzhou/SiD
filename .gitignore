@@ -4,6 +4,7 @@ __pycache__
 .DS_Store
 .vscode
 sid-train-runs/
+image_experiment/
 
 *.pt
 *.pkl
