@@ -15,10 +15,8 @@ import PIL.Image
 import dnnlib
 from torch_utils import distributed as dist
 
-
 #----------------------------------------------------------------------------
-# Wrapper for torch.Generator that allows specifying a different random seed
-# for each sample in a minibatch.
+# One-step generator that allows specifying a different random seed for each generated sample
 
 class StackedRandomGenerator:
     def __init__(self, device, seeds):
@@ -99,12 +97,12 @@ def main(network_pkl, outdir, subdirs, seeds, class_idx, max_batch_size, num_fid
     """Generate random images using SiD".
 
     Examples:
-
+    
     \b
     # Generate 64 images and save them as out/*.png and out.npz
     python generate_onestep.py --outdir=out --seeds=0-63 --batch=64 \
         --network=<network_path>
-
+        
     \b
     # Generate 1024 images using 2 GPUs
     torchrun --standalone --nproc_per_node=2 generate_onestep.py --outdir=out --seeds=0-999 --batch=64 \\

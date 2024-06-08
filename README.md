@@ -65,21 +65,48 @@ Follow the instructions detailed in the [EDM codebase](https://github.com/NVlabs
 
 ## Usage
 
+
+### Training
 After activating the environment, you can run the scripts or use the modules provided in the repository. Example:
 
 ```bash
 sh run_sid.sh 'cifar10-uncond'
 ```
 
-### Training
-- sid_train.py
+Adjust the --batch-gpu parameter according to your GPU memory limitations. The default setting for cifar10-uncond consumes less than 10 GB of memory per GPU.
 
 ### Generation
 
-- generator_onestep.py
-- sid_metrics.py
+Generate example images:
+
+#### Generate images and save them as out/*.png and out.npz
+
+- Using a single GPU
+```bash
+    python generate_onestep.py --outdir=image_experiment/sid-train-runs/out --seeds=0-63 --batch=64 \
+        --network=<network_path>
+```
+- Using multiple GPU
+```bash
+    torchrun --standalone --nproc_per_node=2 generate_onestep.py --outdir=image_experiment/sid-train-runs/out --seeds=0-999 --batch=64 \\
+        --network=<network_path>
+```
+#### Generate and save 50,000 images, and compute FID using the saved images
 - sid_generator.py
 
+- Use a single GPU
+```python sid_generate.py --outdir=image_experiment/out --seeds=0-49999 --batch=128 --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --ref=https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz ```
+
+- Use four GPUs
+```torchrun --standalone --nproc_per_node=4 sid_generate.py --outdir=out --seeds=0-49999 --batch=128 --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl' --ref=https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/imagenet-64x64.npz```
+
+#### Perform 10 random trials, each trial compute FID and IS using 50,000 randomly generated images. 
+- sid_metrics.py
+
+```torchrun --standalone --nproc_per_node=7  sid_metrics.py  --cond=False --metrics='fid50k_full,is50k' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --data='/data/datasets/cifar10-32x32.zip' --data_stat='https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz'```
+
+To Do:
+allow the --data option to be removed, only using --data_stat is enough
 
 ## Checkpoints of one-step generators produced by SiD
 
@@ -117,4 +144,4 @@ If you want to contact me you can reach me at `mingyuan.zhou@mccombs.utexas.edu`
 
 ## License
 
-This project uses the following license: [CC4.0](README.md).
+This project uses the following license: [Apache-2.0 license](README.md).

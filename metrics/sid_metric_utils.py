@@ -1,3 +1,7 @@
+# This file has been modified from the original located at:
+# https://github.com/NVlabs/stylegan2-ada-pytorch/blob/main/metrics/metric_utils.py
+# When opts.data_stat is not None and opts.pr_flag is True, the script uses a precomputed NPZ file from the dataset to calculate precision-recall. This is necessary for assessing the precision and recall of a one-step generator distilled from the EDM model pretrained on ImageNet 64x64.
+
 # Copyright (c) 2021, NVIDIA CORPORATION.  All rights reserved.
 #
 # NVIDIA CORPORATION and its licensors retain all intellectual property
@@ -203,7 +207,19 @@ class ProgressMonitor:
 
 def compute_feature_stats_for_dataset(opts, detector_url, detector_kwargs, rel_lo=0, rel_hi=1, batch_size=64, data_loader_kwargs=None, max_items=None, **stats_kwargs):
     if opts.data_stat is not None:   #use the precomputed dataset stats, which is needed when computing the Precision and Recall for the distill Imagenet-64x64 EDM model
-        loaded_npz = np.load(opts.data_stat)
+        
+        loaded_npz = None
+        try:
+            # Assuming `open_url` returns a file-like object
+            with dnnlib.util.open_url(opts.data_stat) as f:
+                # Load the file using numpy.load
+                loaded_npz = dict(np.load(f))
+                #print("Data loaded successfully", loaded_npz)
+        except Exception as e:
+            print("Failed to load the data:", str(e))
+        
+        #loaded_npz = np.load(opts.data_stat)
+        
         if opts.pr_flag:  #return the stats needed for computing Precision and Recall
             dataset = NumpyArrayDataset(loaded_npz['arr_0'])
             dataset.name = 'precomputed-feature'

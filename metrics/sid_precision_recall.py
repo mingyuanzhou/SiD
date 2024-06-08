@@ -1,3 +1,6 @@
+# This file has been modified from the original located at:
+# https://github.com/NVlabs/stylegan2-ada-pytorch/blob/main/metrics/precision_recall.py
+
 # Copyright (c) 2021, NVIDIA CORPORATION.  All rights reserved.
 #
 # NVIDIA CORPORATION and its licensors retain all intellectual property
@@ -35,10 +38,10 @@ def compute_distances(row_features, col_features, num_gpus, rank, col_batch_size
 
 def compute_pr(opts, max_real, num_gen, nhood_size, row_batch_size, col_batch_size):
     
-    #detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/vgg16.pt'
     detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    # Use inception encoder to be consistent with https://github.com/openai/guided-diffusion/tree/main/evaluations
     
-    opts.pr_flag = True
+    opts.pr_flag = True #Set to True to for computing precision and recall.
     
     detector_kwargs = dict(return_features=True)
 

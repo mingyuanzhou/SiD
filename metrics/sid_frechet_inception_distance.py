@@ -1,3 +1,7 @@
+
+# This file has been modified from the original located at:
+# https://github.com/NVlabs/stylegan2-ada-pytorch/blob/main/metrics/frechet_inception_distance.py
+
 # Copyright (c) 2021, NVIDIA CORPORATION.  All rights reserved.
 #
 # NVIDIA CORPORATION and its licensors retain all intellectual property
@@ -23,10 +27,12 @@ def compute_fid(opts, max_real, num_gen):
     # Direct TorchScript translation of http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz
     detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
     
-    opts.pr_flag = False
+    opts.pr_flag = False # Set to False when using metrics other than precision/recall.
     
     detector_kwargs = dict(return_features=True) # Return raw features before the softmax layer.
 
+    
+    # Add an option to utilize precomputed statistics for reference data.
     if opts.data_stat is not None:
         mu_real, sigma_real = metric_utils.compute_feature_stats_for_dataset(
         opts=opts, detector_url=detector_url, detector_kwargs=detector_kwargs,
@@ -37,6 +43,7 @@ def compute_fid(opts, max_real, num_gen):
         opts=opts, detector_url=detector_url, detector_kwargs=detector_kwargs,
         rel_lo=0, rel_hi=0, capture_mean_cov=True, max_items=max_real).get_mean_cov()
 
+    # The generator component remains unchanged from the original code.
     mu_gen, sigma_gen = metric_utils.compute_feature_stats_for_generator(
         opts=opts, detector_url=detector_url, detector_kwargs=detector_kwargs,
         rel_lo=0, rel_hi=1, capture_mean_cov=True, max_items=num_gen).get_mean_cov()

@@ -5,9 +5,13 @@
 # work. If not, see https://www.apache.org/licenses/LICENSE-2.0.txt
 
 
-"""Distill pretraind diffusion-based generative model using the techniques described in the
-paper "Score identity Distillation: Exponentially Fast Distillation of
-Pretrained Diffusion Models for One-Step Generation"."""
+"""Generate random images using the techniques described in the paper
+"Score identity Distillation: Exponentially Fast Distillation of
+Pretrained Diffusion Models for One-Step Generation".
+
+Compute Metrics (FID, IS, Precsion, and Recall) by comparing the statistics of generated images with those of reference data.
+
+Performing 10 random trials and recording their metrics, with which one can compute the sample mean and standard deviation"""
 
 import os
 import sys
@@ -27,6 +31,7 @@ import psutil
 import PIL.Image
 import numpy as np
 
+from read_huggingface_url import read_huggingface_url
 
 
 from torch_utils import distributed as dist
@@ -36,8 +41,11 @@ from torch_utils import misc
 
 from metrics import sid_metric_main as metric_main
 
+
+
 import warnings
 warnings.filterwarnings('ignore', 'Grad strides do not match bucket view strides') # False warning printed by PyTorch 1.12.
+
 
 #----------------------------------------------------------------------------
 # Parse a comma separated list of numbers or ranges and return a list of ints.
@@ -91,7 +99,7 @@ def save_metric(result_dict, fname):
 
 
 @click.command()
-@click.option('--data',          help='Path to the dataset', metavar='ZIP|DIR',                     type=str, required=True)
+@click.option('--data',          help='Path to the dataset', metavar='ZIP|DIR',                     type=str, default=None)
 @click.option('--data_stat',     help='Path to the dataset stats', metavar='ZIP|DIR',               type=str, default=None)
 @click.option('--init_sigma',    help='Noise standard deviation that is fixed during distillation and generation', metavar='FLOAT', type=click.FloatRange(min=0, min_open=True), default=2.5, show_default=True)
 @click.option('--cond',          help='Train class-conditional model', metavar='BOOL',              type=bool, default=False, show_default=True)
@@ -101,20 +109,32 @@ def save_metric(result_dict, fname):
 @click.option('--metrics',       help='Comma-separated list or "none" [default: fid50k_full]',      type=CommaSeparatedList())
 # FID metric PT path
 @click.option('--network', 'network_pkl',  help='Network pickle filename', metavar='PATH|URL',                      type=str, required=True)
-@click.option('--outdir',      help='Path to store the output text file',  type=str, default='evalout')
+@click.option('--outdir',      help='Path to store the output text file',  type=str, default='out_metrics')
 
 def main(**kwargs):
-    """Distill pretraind diffusion-based generative model using the techniques described in the
-paper "Score identity Distillation: Exponentially Fast Distillation of
-Pretrained Diffusion Models for One-Step Generation".
+    """Generate random images using the techniques described in the paper
+    "Score identity Distillation: Exponentially Fast Distillation of
+    Pretrained Diffusion Models for One-Step Generation".
+
+    Compute Metrics (FID, IS, Precsion, and Recall) by comparing the statistics of generated images with those of reference data.
+
+    Performing 10 random trials and report the sample mean and standard deviation
     
     Examples:
 
     \b
-    # Distill EDM model for class-conditional CIFAR-10 using 8 GPUs
-    torchrun --standalone --nproc_per_node=8 sid_train.py --outdir=training-runs \\
-        --data=datasets/cifar10-32x32.zip --cond=1 --arch=ddpmpp
+    #Cifar10 unconditional, alpha=1.2
+    
+    torchrun --standalone --nproc_per_node=7  sid_metrics.py  --cond=False --metrics='fid50k_full,is50k' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --data='/data/datasets/cifar10-32x32.zip' --data_stat='https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz'
+    
+    
+    
+  
+    
     """
+    
+    # torchrun --standalone --nproc_per_node=1  sid_metrics.py  --cond=False --metrics='fid50k_full,is50k' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --data_stat='https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz'
+    
     opts = dnnlib.EasyDict(kwargs)
     torch.multiprocessing.set_start_method('spawn')
     dist.init()
@@ -133,6 +153,11 @@ Pretrained Diffusion Models for One-Step Generation".
 
     # Load network.
     dist.print0(f'Loading network from "{network_pkl}"...')
+    
+    if dist.get_rank()==0:
+        if 'huggingface.co' in network_pkl:
+            network_pkl = read_huggingface_url(network_pkl)
+    
     with dnnlib.util.open_url(network_pkl, verbose=(dist.get_rank() == 0)) as f:
         G_ema = pickle.load(f)['ema'].to(device)
     

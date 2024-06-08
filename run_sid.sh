@@ -32,6 +32,8 @@ if [ "$dataset" = 'cifar10-uncond' ]; then
     --ls 1 \
     --lsg 100 \
     --duration 100
+    #\
+    #--resume 'image_experiment/sid-train-runs/cifar10-uncond/00002-cifar10-32x32-uncond-ddpmpp-edmglr1e-05-lr1e-05-initsigma2.5-gpus4-alpha1.2-batch256-tmax800-fp32/training-state-000128.pt'
 
 elif [ "$dataset" = 'cifar10-cond' ]; then
     torchrun --standalone --nproc_per_node=4 sid_train.py \

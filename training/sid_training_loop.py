@@ -221,8 +221,6 @@ def training_loop(
             g_optimizer.load_state_dict(data['g_optimizer_state'])
             del data # conserve memory
             dist.print0('Loading checkpoint completed')
-            if dist.get_rank() == 0:
-                os.remove(resume_training) 
             dist.print0('Setting up optimizer...')
             fake_score_ddp = torch.nn.parallel.DistributedDataParallel(fake_score, device_ids=[device], broadcast_buffers=False,find_unused_parameters=False)
             G_ddp = torch.nn.parallel.DistributedDataParallel(G, device_ids=[device], broadcast_buffers=False,find_unused_parameters=False)
@@ -289,21 +287,21 @@ def training_loop(
     dist.print0('Exporting sample images...')
 
     
-    if resume_training is None: 
-        if dist.get_rank() == 0:
-            images = torch.cat([G_ema(z, init_sigma*torch.ones(z.shape[0],1,1,1).to(z.device).to(z.dtype), c, augment_labels=torch.zeros(z.shape[0], 9).to(z.device).to(z.dtype)).cpu() for z, c in zip(grid_z, grid_c)]).numpy()
-            save_image_grid(img=images, fname=os.path.join(run_dir, f'fakes_{alpha:03f}_{cur_nimg//1000:06d}.png'), drange=[-1,1], grid_size=grid_size)
-            del images
+#     if resume_training is None: 
+#         if dist.get_rank() == 0:
+#             images = torch.cat([G_ema(z, init_sigma*torch.ones(z.shape[0],1,1,1).to(z.device).to(z.dtype), c, augment_labels=torch.zeros(z.shape[0], 9).to(z.device).to(z.dtype)).cpu() for z, c in zip(grid_z, grid_c)]).numpy()
+#             save_image_grid(img=images, fname=os.path.join(run_dir, f'fakes_{alpha:03f}_{cur_nimg//1000:06d}.png'), drange=[-1,1], grid_size=grid_size)
+#             del images
         
-        dist.print0('Evaluating metrics...')
+#         dist.print0('Evaluating metrics...')
 
-        for metric in metrics:
-            result_dict = calculate_metric(metric=metric, G=G_ema, init_sigma=init_sigma,
-                dataset_kwargs=dataset_kwargs, num_gpus=dist.get_world_size(), rank=dist.get_rank(), local_rank=dist.get_local_rank(), device=device)
-            if dist.get_rank() == 0:
-                print(result_dict.results)
-                metric_main.report_metric(result_dict, run_dir=run_dir, snapshot_pkl=f'fakes_{alpha:03f}_{cur_nimg//1000:06d}.png', alpha=alpha)          
-            stats_metrics.update(result_dict.results)
+#         for metric in metrics:
+#             result_dict = calculate_metric(metric=metric, G=G_ema, init_sigma=init_sigma,
+#                 dataset_kwargs=dataset_kwargs, num_gpus=dist.get_world_size(), rank=dist.get_rank(), local_rank=dist.get_local_rank(), device=device)
+#             if dist.get_rank() == 0:
+#                 print(result_dict.results)
+#                 metric_main.report_metric(result_dict, run_dir=run_dir, snapshot_pkl=f'fakes_{alpha:03f}_{cur_nimg//1000:06d}.png', alpha=alpha)          
+#             stats_metrics.update(result_dict.results)
       
     while True:        
         
