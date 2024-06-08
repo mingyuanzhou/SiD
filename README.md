@@ -2,6 +2,15 @@
 
 This repository contains the code necessary to replicate the findings of our ICML 2024 paper titled "Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation." The technique, Score identity Distillation (SiD), is used to distill pretrained EDM diffusion models.
 
+```bibtex
+@inproceedings{zhou2024score,
+  title={Score Identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation},
+  author={Mingyuan Zhou and Huangjie Zheng and Zhendong Wang and Mingzhang Yin and Hai Huang},
+  booktitle={International Conference on Machine Learning},
+  year={2024}
+}
+```
+
 SiD operates as a data-free distillation method but still demonstrates superior performance compared to the teacher EDM model across most datasets, with the notable exception of ImageNet 64x64. It outperforms all previous diffusion distillation approaches—whether one-step or few-step, data-free or training data-dependent—in terms of generation quality. This achievement sets new standards for efficiency and effectiveness in diffusion distillation.
 
 It achieves the following Fréchet Inception Distances (FID):
