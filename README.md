@@ -4,7 +4,7 @@ This repository contains the code necessary to replicate the findings of our ICM
 
 ```bibtex
 @inproceedings{zhou2024score,
-  title={Score Identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation},
+  title={Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation},
   author={Mingyuan Zhou and Huangjie Zheng and Zhendong Wang and Mingzhang Yin and Hai Huang},
   booktitle={International Conference on Machine Learning},
   year={2024}
