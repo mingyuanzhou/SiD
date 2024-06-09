@@ -103,9 +103,9 @@ def save_pt(pt, fname):
     torch.save(pt, fname)
 
 
-def calculate_metric(metric,  G, init_sigma, dataset_kwargs, num_gpus, rank, local_rank, device):
+def calculate_metric(metric,  G, init_sigma, dataset_kwargs, num_gpus, rank, local_rank, device,data_stat):
     return metric_main.calc_metric(metric=metric,G=G, init_sigma=init_sigma,
-        dataset_kwargs=dataset_kwargs, num_gpus=num_gpus, rank=rank, local_rank=local_rank, device=device)
+        dataset_kwargs=dataset_kwargs, num_gpus=num_gpus, rank=rank, local_rank=local_rank, device=device,data_stat=data_stat)
 
 def append_line(jsonl_line, fname):
     with open(fname, 'at') as f:
@@ -145,6 +145,7 @@ def training_loop(
     device              = torch.device('cuda'),
     metrics             = None,
     init_sigma          = None,
+    data_stat           = None,
 ):
     # Initialize.
     start_time = time.time()
@@ -285,24 +286,7 @@ def training_loop(
     
     del data # conserve memory
     dist.print0('Exporting sample images...')
-
-    
-#     if resume_training is None: 
-#         if dist.get_rank() == 0:
-#             images = torch.cat([G_ema(z, init_sigma*torch.ones(z.shape[0],1,1,1).to(z.device).to(z.dtype), c, augment_labels=torch.zeros(z.shape[0], 9).to(z.device).to(z.dtype)).cpu() for z, c in zip(grid_z, grid_c)]).numpy()
-#             save_image_grid(img=images, fname=os.path.join(run_dir, f'fakes_{alpha:03f}_{cur_nimg//1000:06d}.png'), drange=[-1,1], grid_size=grid_size)
-#             del images
-        
-#         dist.print0('Evaluating metrics...')
-
-#         for metric in metrics:
-#             result_dict = calculate_metric(metric=metric, G=G_ema, init_sigma=init_sigma,
-#                 dataset_kwargs=dataset_kwargs, num_gpus=dist.get_world_size(), rank=dist.get_rank(), local_rank=dist.get_local_rank(), device=device)
-#             if dist.get_rank() == 0:
-#                 print(result_dict.results)
-#                 metric_main.report_metric(result_dict, run_dir=run_dir, snapshot_pkl=f'fakes_{alpha:03f}_{cur_nimg//1000:06d}.png', alpha=alpha)          
-#             stats_metrics.update(result_dict.results)
-      
+  
     while True:        
         
         #Update fake score network f_psi
@@ -409,7 +393,7 @@ def training_loop(
             dist.print0('Evaluating metrics...')
             for metric in metrics:
                 result_dict = calculate_metric(metric=metric, G=G_ema, init_sigma=init_sigma,
-                    dataset_kwargs=dataset_kwargs, num_gpus=dist.get_world_size(), rank=dist.get_rank(), local_rank=dist.get_local_rank(), device=device)
+                    dataset_kwargs=dataset_kwargs, num_gpus=dist.get_world_size(), rank=dist.get_rank(), local_rank=dist.get_local_rank(), device=device,data_stat=data_stat)
                 if dist.get_rank() == 0:
                     print(result_dict.results)
                     metric_main.report_metric(result_dict, run_dir=run_dir, snapshot_pkl=f'fakes_{alpha:03f}_{cur_nimg//1000:06d}.png', alpha=alpha)  

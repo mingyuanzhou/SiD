@@ -34,8 +34,6 @@ import numpy as np
 
 import PIL.Image
 
-from read_huggingface_url import read_huggingface_url
-
 
 #----------------------------------------------------------------------------
 
@@ -243,12 +241,7 @@ def main(**kwargs):
     device = torch.device('cuda')
 
     # Load network.
-    dist.print0(f'Loading network from "{network_pkl}"...')
-    
-    if dist.get_rank()==0:
-        if 'huggingface.co' in network_pkl:
-            network_pkl = read_huggingface_url(network_pkl)
-    
+    dist.print0(f'Loading network from "{network_pkl}"...')    
     with dnnlib.util.open_url(network_pkl, verbose=(dist.get_rank() == 0)) as f:
         net = pickle.load(f)['ema'].to(device)
 

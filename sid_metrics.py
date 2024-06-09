@@ -31,8 +31,6 @@ import psutil
 import PIL.Image
 import numpy as np
 
-from read_huggingface_url import read_huggingface_url
-
 
 from torch_utils import distributed as dist
 
@@ -122,18 +120,31 @@ def main(**kwargs):
     
     Examples:
 
-    \b
-    #Cifar10 unconditional, alpha=1.2
     
-    torchrun --standalone --nproc_per_node=7  sid_metrics.py  --cond=False --metrics='fid50k_full,is50k' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --data='/data/datasets/cifar10-32x32.zip' --data_stat='https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz'
+    ##### Compute FID and/or IS (the --data_stat parameter is not strictly required but can expedite the metric computation process)
     
+    the --data_stat option is not required, but having it will make it faster to evaluate metrics)
+
+
+    torchrun --standalone --nproc_per_node=4  sid_metrics.py  --cond=False --metrics='fid50k_full,is50k' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --data='/data/datasets/cifar10-32x32.zip' 
     
-    
-  
+    torchrun --standalone --nproc_per_node=4  sid_metrics.py  --cond=False --metrics='fid50k_full,is50k' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --data='/data/datasets/cifar10-32x32.zip' --data_stat='https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz'
+
+
+
+    torchrun --standalone --nproc_per_node=4  sid_metrics.py  --cond=True --metrics='fid50k_full' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl' --data='/data/datasets/imagenet-64x64.zip' --data_stat='https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/imagenet-64x64.npz' 
+
+
+
+    ##### Compute Precision and Recall for ImageNet
+
+
+    torchrun --standalone --nproc_per_node=4  sid_metrics.py  --cond=True --metrics='pr50k3_full' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl' --data='/data/datasets/imagenet-64x64.zip' --data_stat='https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/64/VIRTUAL_imagenet64_labeled.npz'
+
     
     """
     
-    # torchrun --standalone --nproc_per_node=1  sid_metrics.py  --cond=False --metrics='fid50k_full,is50k' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --data_stat='https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz'
+
     
     opts = dnnlib.EasyDict(kwargs)
     torch.multiprocessing.set_start_method('spawn')
@@ -153,10 +164,6 @@ def main(**kwargs):
 
     # Load network.
     dist.print0(f'Loading network from "{network_pkl}"...')
-    
-    if dist.get_rank()==0:
-        if 'huggingface.co' in network_pkl:
-            network_pkl = read_huggingface_url(network_pkl)
     
     with dnnlib.util.open_url(network_pkl, verbose=(dist.get_rank() == 0)) as f:
         G_ema = pickle.load(f)['ema'].to(device)
@@ -187,7 +194,9 @@ def main(**kwargs):
                 dataset_kwargs=dataset_kwargs, num_gpus=dist.get_world_size(), rank=dist.get_rank(), device=device,data_stat=data_stat)
             if dist.get_rank() == 0:
                 print(result_dict.results)
-                txt_path = os.path.join(os.path.dirname(opts.outdir),f'{metric}{number_part}_{i}.txt')
+                if not os.path.exists(opts.outdir):
+                    os.makedirs(opts.outdir)
+                txt_path = os.path.join(opts.outdir,f'{metric}{number_part}_{i}.txt')
                 print(txt_path)
                 save_metric(result_dict=result_dict,fname=txt_path)
 

@@ -1,7 +1,9 @@
-# Distilling Pretrained Diffusion-Based Generative Models
+# Distilling Pretrained Diffusion-Based Generative Models with SiD
 
-This repository contains the code necessary to replicate the findings of our ICML 2024 paper titled "Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation." The technique, Score identity Distillation (SiD), is used to distill pretrained EDM diffusion models.
+This repository contains the code necessary to replicate the findings of our ICML 2024 paper titled "Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation," available at https://arxiv.org/abs/2404.04057. The technique, Score identity Distillation (SiD), is used to distill pretrained EDM diffusion models.
 
+## Citations 
+If you find our work useful or incorporate our findings in your own research, please consider citing our paper:
 ```bibtex
 @inproceedings{zhou2024score,
   title={Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation},
@@ -10,7 +12,19 @@ This repository contains the code necessary to replicate the findings of our ICM
   year={2024}
 }
 ```
+We also have a follow-up paper that extends our Score Identity Distillation (SiD) methodology to distill Stable Diffusion models for one-step text-to-image generation:
+```bibtex
+@article{zhou2024long,
+title={Long and Short Guidance in Score identity Distillation for One-Step Text-to-Image Generation},
+author={Mingyuan Zhou and Zhendong Wang and Huangjie Zheng and Hai Huang},
+journal={ArXiv 2406.01561},
+url={https://arxiv.org/abs/2406.01561},
+year={2024}
+}
+```
 
+
+## State-of-the-art Performance
 SiD operates as a data-free distillation method but still demonstrates superior performance compared to the teacher EDM model across most datasets, with the notable exception of ImageNet 64x64. It outperforms all previous diffusion distillation approaches—whether one-step or few-step, data-free or training data-dependent—in terms of generation quality. This achievement sets new standards for efficiency and effectiveness in diffusion distillation.
 
 It achieves the following Fréchet Inception Distances (FID):
@@ -92,30 +106,56 @@ Generate example images:
 
 - Using a single GPU
 ```bash
-    python generate_onestep.py --outdir=image_experiment/sid-train-runs/out --seeds=0-63 --batch=64 \
-        --network=<network_path>
+python generate_onestep.py --outdir=image_experiment/sid-train-runs/out --seeds=0-63 --batch=64 --network=<network_path>
 ```
 - Using multiple GPU
 ```bash
-    torchrun --standalone --nproc_per_node=2 generate_onestep.py --outdir=image_experiment/sid-train-runs/out --seeds=0-999 --batch=64 \\
-        --network=<network_path>
+torchrun --standalone --nproc_per_node=2 generate_onestep.py --outdir=image_experiment/sid-train-runs/out --seeds=0-999 --batch=64 --network=<network_path>
 ```
+
+### Evaliations
+
+For ImageNet, there are two different versions of the training data, each associated with its own set of reference statistics. To ensure apples-to-apples comparisons between EDM and its distilled generators with other diffusion models, `imagenet-64x64.npz` should be used for computing FID (Fréchet Inception Distance). Conversely, for computing Precision and Recall, `VIRTUAL_imagenet64_labeled.npz` should be utilized.
+
+`imagenet-64x64.npz` is available at [NVIDIA](https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/imagenet-64x64.npz).
+
+`VIRTUAL_imagenet64_labeled.npz` is available at [OpenAI](https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/64/VIRTUAL_imagenet64_labeled.npz).
+
 #### Generate and save 50,000 images, and compute FID using the saved images
 - sid_generator.py
 
 - Use a single GPU
-```python sid_generate.py --outdir=image_experiment/out --seeds=0-49999 --batch=128 --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --ref=https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz ```
+```bash 
+python sid_generate.py --outdir=image_experiment/out --seeds=0-49999 --batch=128 --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --ref=https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz 
+```
 
 - Use four GPUs
-```torchrun --standalone --nproc_per_node=4 sid_generate.py --outdir=out --seeds=0-49999 --batch=128 --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl' --ref=https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/imagenet-64x64.npz```
+```bash 
+torchrun --standalone --nproc_per_node=4 sid_generate.py --outdir=out --seeds=0-49999 --batch=128 --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl' --ref=https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/imagenet-64x64.npz
+```
 
-#### Perform 10 random trials, each trial compute FID and IS using 50,000 randomly generated images. 
+
+#### Perform 10 random trials, each trial compute the metrics using 50,000 randomly generated images. 
 - sid_metrics.py
 
-```torchrun --standalone --nproc_per_node=7  sid_metrics.py  --cond=False --metrics='fid50k_full,is50k' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --data='/data/datasets/cifar10-32x32.zip' --data_stat='https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz'```
+##### Compute FID and/or IS 
 
-To Do:
-allow the --data option to be removed, only using --data_stat is enough
+```bash
+torchrun --standalone --nproc_per_node=4  sid_metrics.py  --cond=False --metrics='fid50k_full,is50k' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl' --data='/data/datasets/cifar10-32x32.zip'
+```
+
+
+```bash
+torchrun --standalone --nproc_per_node=4  sid_metrics.py  --cond=True --metrics='fid50k_full' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl' --data='/data/datasets/imagenet-64x64.zip' --data_stat='https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/imagenet-64x64.npz' 
+```
+
+
+##### Compute Precision and Recall for ImageNet
+
+```bash
+torchrun --standalone --nproc_per_node=4  sid_metrics.py  --cond=True --metrics='pr50k3_full' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl' --data='/data/datasets/imagenet-64x64.zip' --data_stat='https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/64/VIRTUAL_imagenet64_labeled.npz'
+```
+
 
 ## Checkpoints of one-step generators produced by SiD
 
