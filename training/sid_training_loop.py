@@ -185,10 +185,10 @@ def training_loop(
      
     if dist.get_rank() == 0:
         with torch.no_grad():
-            images = torch.zeros([batch_gpu, G.img_channels, G.img_resolution, G.img_resolution], device=device)
+            images = torch.zeros([batch_gpu, true_score.img_channels, true_score.img_resolution, true_score.img_resolution], device=device)
             sigma = torch.ones([batch_gpu], device=device)
-            labels = torch.zeros([batch_gpu, G.label_dim], device=device)
-            misc.print_module_summary(G, [images, sigma, labels], max_nesting=2)
+            labels = torch.zeros([batch_gpu, true_score.label_dim], device=device)
+            misc.print_module_summary(true_score, [images, sigma, labels], max_nesting=2)
 
     # Setup optimizer.
     dist.print0('Setting up optimizer...')
