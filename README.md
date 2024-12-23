@@ -1,6 +1,7 @@
 # Distilling Pretrained Diffusion-Based Generative Models with SiDA (SiD, SiDA, or SiD²A)
 
-This repository provides the code to reproduce the results presented in our paper, **"Adversarial Score Identity Distillation: Rapidly Surpassing the Teacher in One Step,"** available at [arXiv:2410.14919](https://arxiv.org/abs/2410.14919). The methods introduced, Score identity Distillation (SiD) and Adversarial SiD (SiDA), enable the distillation of pretrained EDM and EDM2 diffusion models.
+This repository contains the code to reproduce the results from our paper, **"Adversarial Score identity Distillation: Rapidly Surpassing the Teacher in One Step,"** available at [arXiv:2410.14919](https://arxiv.org/abs/2410.14919). The introduced methods—Score identity Distillation (SiD), Adversarial SiD (SiDA), and SiD-Initialized SiDA (SiD²A)—facilitate the distillation of pretrained EDM and EDM2 diffusion models.
+
 
 ## Citations
 
