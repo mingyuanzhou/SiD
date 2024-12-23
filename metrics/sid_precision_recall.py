@@ -37,8 +37,10 @@ def compute_distances(row_features, col_features, num_gpus, rank, col_batch_size
 #----------------------------------------------------------------------------
 
 def compute_pr(opts, max_real, num_gen, nhood_size, row_batch_size, col_batch_size):
-    
-    detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    if opts.detector_url is None:
+        detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    else:
+        detector_url = opts.detector_url
     # Use inception encoder to be consistent with https://github.com/openai/guided-diffusion/tree/main/evaluations
     
     opts.pr_flag = True #Set to True to for computing precision and recall.

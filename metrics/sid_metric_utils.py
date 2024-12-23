@@ -43,7 +43,7 @@ class NumpyArrayDataset(Dataset):
 #----------------------------------------------------------------------------
 
 class MetricOptions:
-    def __init__(self, G=None, init_sigma=None, G_kwargs={}, dataset_kwargs={}, data_stat=None, num_gpus=1, rank=0, local_rank=0, device=None, progress=None, cache=True):
+    def __init__(self, G=None, init_sigma=None, G_kwargs={}, dataset_kwargs={}, data_stat=None, detector_url=None,num_gpus=1, rank=0, local_rank=0, device=None, progress=None, cache=True):
         assert 0 <= rank < num_gpus
         
         self.G              = G
@@ -51,6 +51,7 @@ class MetricOptions:
         self.init_sigma = init_sigma
         self.dataset_kwargs = dnnlib.EasyDict(dataset_kwargs) 
         self.data_stat      = data_stat
+        self.detector_url   = detector_url 
         self.num_gpus       = num_gpus
         self.rank           = rank
         self.local_rank     = local_rank

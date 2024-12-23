@@ -17,7 +17,11 @@ from . import sid_metric_utils as metric_utils
 
 def compute_is(opts, num_gen, num_splits):
     # Direct TorchScript translation of http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz
-    detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    #detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    if opts.detector_url is None:
+        detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    else:
+        detector_url = opts.detector_url
     
     detector_kwargs = dict(no_output_bias=True) # Match the original implementation by not applying bias in the softmax layer.
 

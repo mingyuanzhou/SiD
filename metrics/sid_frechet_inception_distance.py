@@ -25,7 +25,11 @@ from . import sid_metric_utils as metric_utils
 
 def compute_fid(opts, max_real, num_gen):
     # Direct TorchScript translation of http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz
-    detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    #detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    if opts.detector_url is None:
+        detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    else:
+        detector_url = opts.detector_url
     
     opts.pr_flag = False # Set to False when using metrics other than precision/recall.
     

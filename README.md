@@ -1,41 +1,73 @@
-# Distilling Pretrained Diffusion-Based Generative Models with SiD
+# Distilling Pretrained Diffusion-Based Generative Models with SiDA (SiD, SiDA, or SiD²A)
 
-This repository contains the code necessary to replicate the findings of our ICML 2024 paper titled "Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation," available at https://arxiv.org/abs/2404.04057. The technique, Score identity Distillation (SiD), is used to distill pretrained EDM diffusion models.
+This repository provides the code to reproduce the results presented in our paper, **"Adversarial Score Identity Distillation: Rapidly Surpassing the Teacher in One Step,"** available at [arXiv:2410.14919](https://arxiv.org/abs/2410.14919). The methods introduced, Score identity Distillation (SiD) and Adversarial SiD (SiDA), enable the distillation of pretrained EDM and EDM2 diffusion models.
 
-## Citations 
-If you find our work useful or incorporate our findings in your own research, please consider citing our paper:
+## Citations
+
+If you find this repository helpful or use our work in your research, please consider citing our paper:
+
+```bibtex
+@article{zhou2024adversarial,
+  title={Adversarial Score Identity Distillation: Rapidly Surpassing the Teacher in One Step},
+  author={Zhou, Mingyuan and Zheng, Huangjie and Gu, Yi and Wang, Zhendong and Huang, Hai},
+  journal={arXiv preprint arXiv:2410.14919},
+  year={2024}
+}
+```
+
+Our work on SiDA builds on prior research, including SiD and SiD-LSA. If relevant, you may also want to cite the following:
+
+### SiD: Score identity Distillation
+
 ```bibtex
 @inproceedings{zhou2024score,
-  title={Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation},
+  title={Score Identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation},
   author={Mingyuan Zhou and Huangjie Zheng and Zhendong Wang and Mingzhang Yin and Hai Huang},
   booktitle={International Conference on Machine Learning},
   year={2024}
 }
 ```
-We also have a follow-up paper, available at https://arxiv.org/abs/2406.01561, that extends our SiD methodology to distill Stable Diffusion models for one-step text-to-image generation:
+
+### SiD-LSG: SiD with Long and Short Guidance for One-step Text-to-Image Generation
+
 ```bibtex
 @article{zhou2024long,
-title={Long and Short Guidance in Score identity Distillation for One-Step Text-to-Image Generation},
-author={Mingyuan Zhou and Zhendong Wang and Huangjie Zheng and Hai Huang},
-journal={ArXiv 2406.01561},
-url={https://arxiv.org/abs/2406.01561},
-year={2024}
+  title={Long and Short Guidance in Score Identity Distillation for One-Step Text-to-Image Generation},
+  author={Mingyuan Zhou and Zhendong Wang and Huangjie Zheng and Hai Huang},
+  journal={arXiv preprint arXiv:2406.01561},
+  url={https://arxiv.org/abs/2406.01561},
+  year={2024}
 }
 ```
 
 
-## State-of-the-art Performance
-SiD operates as a data-free distillation method but still demonstrates superior performance compared to the teacher EDM model across most datasets, with the notable exception of ImageNet 64x64. It outperforms all previous diffusion distillation approaches—whether one-step or few-step, data-free or training data-dependent—in terms of generation quality. This achievement sets new standards for efficiency and effectiveness in diffusion distillation.
+## State-of-the-Art Performance
 
-It achieves the following Fréchet Inception Distances (FID):
+SiDA achieves state-of-the-art performance, surpassing the teacher EDM/EDM2 models across all datasets and model sizes. Remarkably, this is accomplished in a single step, without relying on classifier-free guidance. SiDA sets new benchmarks for efficiency and effectiveness in diffusion distillation.
 
-| Dataset              | FID   |
-|----------------------|-------|
-| CIFAR10 Unconditional| 1.923 |
-| CIFAR10 Conditional  | 1.710 |
-| ImageNet 64x64       | 1.524 |
-| FFHQ 64x64           | 1.550 |
-| AFHQ-v2 64x64        | 1.628 |
+### Fréchet Inception Distance (FID) Results
+SiDA achieves the following FID scores when distilling EDM:
+
+| Dataset               | FID   |
+|-----------------------|-------|
+| CIFAR10 (Unconditional)| 1.499 |
+| CIFAR10 (Conditional)  | 1.396 |
+| ImageNet 64x64         | 1.110 |
+| FFHQ 64x64             | 1.040 |
+| AFHQ-v2 64x64          | 1.276 |
+
+For EDM2 models pretrained on ImageNet 512x512, SiDA achieves the following FID scores:
+
+| Teacher Model (Parameter Count) | FID   |
+|---------------------------------|-------|
+| EDM2-XS (125M)                  | 2.156 |
+| EDM2-S  (280M)                  | 1.669 |
+| EDM2-M  (498M)                  | 1.488 |
+| EDM2-L  (777M)                  | 1.413 |
+| EDM2-XL (1.1B)                  | 1.379 |
+| EDM2-XXL (1.5B)                 | 1.366 |
+
+
 
 
 ## Prerequisites
@@ -53,9 +85,12 @@ To install the necessary packages and set up the environment, follow these steps
 First, clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/mingyuanzhou/SiD.git
+git clone --branch sida https://github.com/mingyuanzhou/SiD.git
 cd SiD
+git branch
 ```
+
+The output should show * sida, indicating that you're on the correct branch.
 
 ### Create the Conda Environment
 
@@ -72,29 +107,81 @@ This command will read the `environment.yaml` file in the repository, which cont
 After creating the environment, you can activate it by running:
 
 ```bash
-conda activate sid
+conda activate sida
 ```
-
 ### Prepare the Datasets
 
-Follow the instructions detailed in the [EDM codebase](https://github.com/NVlabs/edm/tree/main?tab=readme-ov-file#preparing-datasets) to prepare the training datasets. Once prepared, place them into the `/data/datasets/` folder:
+To prepare the training datasets needed to distill EDM, follow the instructions provided in the [EDM codebase](https://github.com/NVlabs/edm/tree/main?tab=readme-ov-file#preparing-datasets). Once the datasets are ready, place them in the `/data/datasets/` folder with the following names:
 
 - `cifar10-32x32.zip`
 - `imagenet-64x64.zip`
 - `ffhq-64x64.zip`
 - `afhqv2-64x64.zip`
 
-**Note:** Although a training dataset is not necessary for distilling the pretrained EDM model, it is used in our code to calculate evaluation metrics such as FID and Inception Score. Optionally, you can create a dummy dataset and either disable the evaluation code if you wish to run the SID distillation code without these metrics, or provide an npz file of the training dataset if you need to compute these metrics.
+To prepare the ImageNet 512x512 training dataset needed to distill EDM2, follow the instructions provided in the [EDM2 codebase](https://github.com/NVlabs/edm2/tree/main?tab=readme-ov-file#preparing-datasets). Once the dataset is ready, place them in the `/data/datasets/` folder with the following names:
+
+- `img512-sd.zip`
+
+
+**Important Notes:**
+
+- **For SiD:**
+  - A training dataset is not required for distilling pretrained EDM models. However, it is used in the code to compute evaluation metrics like FID and Inception Score.
+  - If you do not need these metrics, you can either:
+    - Provide a dummy dataset.
+    - Disable the evaluation code to run SiD distillation without metrics.
+  - Alternatively, if you want to compute these metrics, ensure you provide an `.npz` file of the training dataset.
+
+- **For SiDA or SiD-SiDA:**
+  - A training dataset is mandatory as it is actively used in the distillation process.
+
 
 ## Usage
 
 
-### Training
-After activating the environment, you can run the scripts or use the modules provided in the repository. Example:
+### Distilling EDM
 
-```bash
-sh run_sid.sh 'cifar10-uncond'
-```
+Once the environment is activated, you can start training by running the provided scripts or modules. Here are examples for each method:
+
+- **SiD:**
+  ```bash
+  sh run_sid_v1.sh 'cifar10-uncond'
+  ```
+
+- **SiDA:**
+  ```bash
+  sh run_sida.sh 'cifar10-uncond'
+  ```
+
+- **SiD-SiDA (SiD²A):**
+  ```bash
+  sh run_sid_sida.sh 'cifar10-uncond'
+  ```
+  
+
+### Distilling EDM2 (to be added)
+
+Once the environment is activated, you can start training by running the provided scripts or modules. Here are examples for each method:
+
+- **SiD:**
+  ```bash
+  sh run_sid_v1.sh 'imagenet-edm2-xs'
+  ```
+
+- **SiDA:**
+  ```bash
+  sh run_sida.sh 'imagenet-edm2-xs'
+  ```
+
+- **SiD-SiDA (SiD²A):**
+  ```bash
+  sh run_sid_sida.sh 'imagenet-edm2-xs'
+  ```
+
+### Key Revisions:
+1. **Improved Readability:** Organized the examples into a list format for clarity.
+2. **Consistent Naming:** Used consistent casing and styling for terms like "SiD" and "SiDA."
+3. **Enhanced Presentation:** Highlighted the training commands with proper markdown styling.
 
 Adjust the --batch-gpu parameter according to your GPU memory limitations. The default setting for cifar10-uncond consumes less than 10 GB of memory per GPU.
 
@@ -162,15 +249,12 @@ The one-step generators produced by SiD are provided in [huggingface/UT-Austin-P
 
 ### Acknowledgements
 
-We extend our gratitude to the authors of the **EDM paper** for sharing their code, which served as the foundational framework for developing SiD. The repository can be found here: [NVlabs/edm](https://github.com/NVlabs/edm).
-
-Additionally, we are thankful to the authors of the **Diff Instruct paper** for making their code available. Their contributions have been instrumental in integrating the evaluation pipeline into our training iterations. Their repository is accessible here: [pkulwj1994/diff_instruct](https://github.com/pkulwj1994/diff_instruct).
-
+We extend our gratitude to the authors of the **EDM paper** and **EDM2 paper**for sharing their code, which served as the foundational frameworks for developing SiDA. The EDM repository can be found here: [NVlabs/edm](https://github.com/NVlabs/edm). The EDM2 repository can be found here: [NVlabs/edm2](https://github.com/NVlabs/edm2).
 
 
 ### Code Contributions
 - **Mingyuan Zhou**: Led the project and wrote the majority of the code.
-- **Huangjie Zheng, Zhendong Wang, Hai Huang**: Worked closely with Mingyuan Zhou, co-developing essential components and writing various subfunctions.
+- **Huangjie Zheng, Yi Gu, Zhendong Wang, Hai Huang**: Worked with Mingyuan Zhou to develop subfunctions and verify the code and results.
 
 
 ## Contributing to the Project
@@ -187,7 +271,7 @@ Alternatively, see the GitHub documentation on [creating a pull request](https:/
 
 ## Contact
 
-If you want to contact me you can reach me at `mingyuan.zhou@mccombs.utexas.edu`.
+If you want to contact me you can reach me at `mingyuanzhou@gmail.com`.
 
 ## License
 

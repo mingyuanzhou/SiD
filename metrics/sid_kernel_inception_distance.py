@@ -12,12 +12,15 @@ https://github.com/mbinkowski/MMD-GAN/blob/master/gan/compute_scores.py"""
 
 import numpy as np
 from . import sid_metric_utils as metric_utils
-
 #----------------------------------------------------------------------------
 
 def compute_kid(opts, max_real, num_gen, num_subsets, max_subset_size):
     # Direct TorchScript translation of http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz
-    detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    #detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    if opts.detector_url is None:
+        detector_url = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt'
+    else:
+        detector_url = opts.detector_url
     
     detector_kwargs = dict(return_features=True) # Return raw features before the softmax layer.
 

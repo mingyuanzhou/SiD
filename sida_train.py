@@ -18,7 +18,6 @@ import torch
 import dnnlib
 
 from torch_utils import distributed as dist
-#from training import sid_training_loop as training_loop
 from sida_training import sida_training_loop as training_loop
 
 import warnings
@@ -49,6 +48,45 @@ class CommaSeparatedList(click.ParamType):
         if value is None or value.lower() == 'none' or value == '':
             return []
         return value.split(',')
+    
+
+
+from typing import Optional, Any
+
+def find_latest_checkpoint(path: str, dist: Any) -> Optional[str]:
+    """Finds the latest checkpoint and return path, otherwise return None."""
+    if path is None:
+        return None  # Fixed from returning path to returning None directly
+
+    latest_file = None
+    latest_number = -1
+    print(f'Finding latest checkpoint in {path}')
+   
+    if os.path.isdir(path):  
+        for root, _, files in os.walk(path):
+            print(f'At {root}, with {len(files)} files: {str(files)}')
+            for file in files:
+                if file.startswith('training-state-') and file.endswith('.pt'):
+                    # Extract the number from the file name
+                    number_part = file[len('training-state-'):-len('.pt')]
+                    try:
+                        number = int(number_part)
+                        if number > latest_number:
+                            latest_number = number
+                            latest_file = os.path.join(root, file)
+                    except ValueError:
+                        # If the number part is not an integer, ignore this file
+                        continue
+    else:
+        latest_file = path  
+
+    if latest_file is None:
+        print('No latest checkpoint found')
+        return None
+
+    print(f'Found latest file {latest_file}')
+    return latest_file
+    
 
 #----------------------------------------------------------------------------
 @click.command()
@@ -79,7 +117,7 @@ class CommaSeparatedList(click.ParamType):
 
 # I/O-related.
 @click.option('--desc',          help='String to include in result dir name', metavar='STR',        type=str)
-@click.option('--nosubdir',      help='Do not create a subdirectory for results',                   is_flag=True)
+@click.option('--nosubdir',      help='Do not create a subdirectory for results',                   type=bool, default=False, show_default=True)
 @click.option('--tick',          help='How often to print progress', metavar='KIMG',                type=click.IntRange(min=1), default=50, show_default=True)
 @click.option('--snap',          help='How often to save snapshots', metavar='TICKS',               type=click.IntRange(min=1), default=50, show_default=True)
 @click.option('--dump',          help='How often to dump state', metavar='TICKS',                   type=click.IntRange(min=1), default=200, show_default=True)
@@ -102,35 +140,39 @@ class CommaSeparatedList(click.ParamType):
 @click.option('--glr',           help='Learning rate of fake data generator', metavar='FLOAT',       type=click.FloatRange(min=0, min_open=True), default=1e-5, show_default=True)
 @click.option('--g_beta1',       help='beta_1 of the Adam optimizer for generator', metavar='FLOAT', type=click.FloatRange(min=0, min_open=False), default=0, show_default=True)
 
+
+@click.option('--detector_url',     help='detector_url',default='https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt',  type=str)
+
+
 #Parameters added for SiDA
 @click.option('--lsd',           help='Loss scaling GAN discriminator', metavar='FLOAT',             type=click.FloatRange(min=-10, min_open=True), default=1, show_default=True)
 @click.option('--lsg_gan',       help='Loss scaling GAN genenerator loss', metavar='FLOAT',          type=click.FloatRange(min=-10, min_open=True), default=.01, show_default=True)
 @click.option('--sid_model',     help='Path to the predistilled SiD one-step generator',             type=str,default=None, show_default=True)
-
+@click.option('--use_gan',       help='Whether adding adversarial training into SiD, i.e., run SiDA if it is True and SiD if it is False', metavar='BOOL',   type=bool, default=True, show_default=True)
+@click.option('--save_best_and_last',   help='Save G_ema with the best FID and only the last checkpoint for resuming training', metavar='BOOL',   type=bool, default=True, show_default=True)
 
 
 def main(**kwargs):
     """Distill pretraind diffusion-based generative model using the techniques described in the
-paper "Score identity Distillation: Exponentially Fast Distillation of
-Pretrained Diffusion Models for One-Step Generation".
+paper "Adversarial Score Identity Distillation: Rapidly Surpassing the Teacher in One Step".
     
     Examples:
 
     \b
     # Distill EDM model for CIFAR-10 unconditional using 4 GPUs
-    torchrun --standalone --nproc_per_node=4 sid_train.py \
-    --alpha 1.2 \
-    --cond 0 \
+    torchrun --standalone --nproc_per_node=4 sida_train.py \
+    --alpha 1 \
     --tmax 800 \
     --init_sigma 2.5 \
     --batch 256 \
-    --batch-gpu 16 \
-    --outdir 'image_experiment/sid-train-runs/cifar10' \
-    --data '/data/datasets/cifar10-32x32.zip' \
+    --batch-gpu 32 \
+    --data '/data/datasets/cifar10-32x32.zip'  \
+    --outdir '/data/image_experiment/sida-train-runs/cifar10-uncond' \
+    --resume '/data/image_experiment/sida-train-runs/cifar10-uncond' \
+    --nosubdir 0 \
     --arch ddpmpp \
-    --batch 256 \
     --edm_model cifar10-uncond \
-    --metrics fid50k_full,is50k \
+    --detector_url 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt' \
     --tick 10 \
     --snap 50 \
     --dump 500 \
@@ -140,8 +182,15 @@ Pretrained Diffusion Models for One-Step Generation".
     --ls 1 \
     --lsg 100 \
     --lsd 1 \
-    --lsg_gan 0.01\
-    --duration 200
+    --lsg_gan 0.01 \
+    --duration 300 \
+    --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz' \
+    --use_gan 1 \
+    --metrics fid50k_full,is50k \
+    --save_best_and_last 1
+    # Optional: Specify a pretrained SiDA model using --sid_model, e.g.:
+    # --sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl'
+    
     """
     
     opts = dnnlib.EasyDict(kwargs)
@@ -188,7 +237,7 @@ Pretrained Diffusion Models for One-Step Generation".
 
     # Preconditioning & loss function.
     assert opts.precond == 'edm'
-    #The current SiD code only accepted pretrained edm checkpoint, needs to modify accordingly for the checkpoints of other types of diffusion models
+    #The current SiDA code only accepted pretrained edm or edm2 checkpoint, needs to modify accordingly for the checkpoints of other types of diffusion models
     #c.network_kwargs.class_name = 'training.networks.EDMPrecond'
     c.network_kwargs.class_name = 'sida_training.sida_networks.EDMPrecond_EncoderDecoder'
     #c.loss_kwargs.class_name = 'training.sid_loss.SID_EDMLoss'
@@ -228,6 +277,62 @@ Pretrained Diffusion Models for One-Step Generation".
         torch.distributed.broadcast(seed, src=0)
         c.seed = int(seed)
 
+    
+    c.update(loss_scaling_D=opts.lsd, loss_scaling_G_gan=opts.lsg_gan,use_gan=opts.use_gan)    
+        
+        
+    # Description string.
+    cond_str = 'cond' if c.dataset_kwargs.use_labels else 'uncond'
+    dtype_str = 'fp16' if c.network_kwargs.use_fp16 else 'fp32'
+    if c.use_gan:
+        if opts.sid_model is not None:
+            algorithm_str = 'SiD-SiDA'
+        else:
+            algorithm_str = 'SiDA'
+    else:
+        algorithm_str = 'SiD'
+
+    desc = f'{dataset_name:s}-{algorithm_str:s}-{cond_str:s}-{opts.arch:s}-{opts.precond:s}-glr{opts.glr}-lr{opts.lr}-ls{opts.ls}_lsg{opts.lsg}_lsd{opts.lsd}_lsg_gan{opts.lsg_gan}-initsigma{opts.init_sigma}-gpus{dist.get_world_size():d}-alpha{c.alpha}-batch{c.batch_size:d}-tmax{c.tmax:d}-{dtype_str:s}'
+    if opts.sid_model is not None:
+        c.sid_model = opts.sid_model
+        match = re.search(r'(\d+)\.pkl$', c.sid_model)
+        desc += f'_{match.group(1)}'
+        
+    if opts.batch_gpu is not None:
+        desc += f'batchgpu{opts.batch_gpu:d}'
+        
+    if opts.desc is not None:
+        desc += f'{opts.desc}'
+    
+    desc += '/'
+    
+    if dist.get_rank() != 0:
+        torch.distributed.barrier() # rank 0 goes first
+    #if dist.get_rank() != 0:
+    #    c.run_dir = None
+    if opts.nosubdir:
+        c.run_dir = opts.outdir
+        if dist.get_rank()== 0 and not os.path.exists(c.run_dir):
+            os.makedirs(c.run_dir, exist_ok=True)
+    else:
+        c.run_dir = os.path.join(opts.outdir, f'{desc}')
+        if dist.get_rank()== 0 and not os.path.exists(c.run_dir):
+            os.makedirs(c.run_dir, exist_ok=True)
+        
+        if opts.resume is not None:
+            opts.resume = os.path.join(opts.resume, f'{desc}')
+    if dist.get_rank() == 0:
+        torch.distributed.barrier() # other ranks follow
+    
+    opts.resume = find_latest_checkpoint(opts.resume,dist)
+    if opts.resume is not None:
+        print(opts.resume)
+        c.resume_training = opts.resume
+        match = re.fullmatch(r'training-state-(\d+).pt', os.path.basename(opts.resume))
+        if not match or not os.path.isfile(opts.resume):
+            raise click.ClickException('--resume must point to training-state-*.pt from a previous training run')
+        c.resume_kimg = int(match.group(1))
+    
     resume_urls = {
         'cifar10-uncond': 'https://nvlabs-fi-cdn.nvidia.com/edm/pretrained/edm-cifar10-32x32-uncond-vp.pkl',
         'cifar10-cond': 'https://nvlabs-fi-cdn.nvidia.com/edm/pretrained/edm-cifar10-32x32-cond-vp.pkl',
@@ -235,52 +340,19 @@ Pretrained Diffusion Models for One-Step Generation".
         'afhq64-v2':     'https://nvlabs-fi-cdn.nvidia.com/edm/pretrained/edm-afhqv2-64x64-uncond-vp.pkl',
         'imagenet64-cond':    'https://nvlabs-fi-cdn.nvidia.com/edm/pretrained/edm-imagenet-64x64-cond-adm.pkl'
     }
+
     
     if opts.edm_model in resume_urls:
         c.resume_pkl = resume_urls[opts.edm_model]
     else:
         c.resume_pkl = opts.edm_model
 
-    if opts.resume is not None:
-        c.resume_training = opts.resume
-        match = re.fullmatch(r'training-state-(\d+).pt', os.path.basename(opts.resume))
-        if not match or not os.path.isfile(opts.resume):
-            raise click.ClickException('--resume must point to training-state-*.pt from a previous training run')
-        c.resume_kimg = int(match.group(1))
-
         
-    c.update(loss_scaling_D=opts.lsd, loss_scaling_G_gan=opts.lsg_gan)
-    if opts.sid_model is not None:
-        c.sid_model = opts.sid_model
-        
-        
-        
-    # Description string.
-    cond_str = 'cond' if c.dataset_kwargs.use_labels else 'uncond'
-    dtype_str = 'fp16' if c.network_kwargs.use_fp16 else 'fp32'
-    desc = f'{dataset_name:s}-{cond_str:s}-{opts.arch:s}-{opts.precond:s}glr{opts.glr}-lr{opts.lr}-initsigma{opts.init_sigma}-gpus{dist.get_world_size():d}-alpha{c.alpha}-batch{c.batch_size:d}-tmax{c.tmax:d}-{dtype_str:s}'
-    if opts.desc is not None:
-        desc += f'-{opts.desc}'
-    if opts.sid_model is not None:
-        desc += f'-sid'
     
     
-    if dist.get_rank() != 0:
-        c.run_dir = None
-    elif opts.nosubdir:
-        c.run_dir = opts.outdir
-    else:
-        prev_run_dirs = []
-        if os.path.isdir(opts.outdir):
-            prev_run_dirs = [x for x in os.listdir(opts.outdir) if os.path.isdir(os.path.join(opts.outdir, x))]
-        prev_run_ids = [re.match(r'^\d+', x) for x in prev_run_dirs]
-        prev_run_ids = [int(x.group()) for x in prev_run_ids if x is not None]
-        cur_run_id = max(prev_run_ids, default=-1) + 1
-        c.run_dir = os.path.join(opts.outdir, f'{cur_run_id:05d}-{desc}')
-        assert not os.path.exists(c.run_dir)
     
     
-
+    c.detector_url=opts.detector_url
 
     # Print options.
     dist.print0()

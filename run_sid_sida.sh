@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Reproduce SiDA distillation of pretrained EDM models
+#Reproduce SiD-SiDA (SiD^2A) distillation of pretrained EDM models
 
 # Retrieve the dataset name from the first argument
 dataset=$1
@@ -8,7 +8,7 @@ dataset=$1
 # Example usage:
 # To set specific GPUs and run the script for 'cifar10-uncond':
 # export CUDA_VISIBLE_DEVICES=0,1,2,3
-# sh run_sid_sida.sh 'cifar10-uncond'
+# sh run_sida.sh 'cifar10-uncond'
 
 # Tip: Decrease --batch-gpu to reduce memory consumption on limited GPU resources
 
@@ -42,14 +42,14 @@ if [ "$dataset" = 'cifar10-uncond' ]; then
     --lsg 100 \
     --lsd 1 \
     --lsg_gan 0.01 \
-    --duration 300 \
+    --duration 100 \
     --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz' \
     --use_gan 1 \
     --metrics fid50k_full,is50k \
-    --save_best_and_last 1 
-    # --sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl'
+    --save_best_and_last 1 \
+    --sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl'
     
-    #torchrun --standalone --nproc_per_node=4 sida_train.py \
+    # torchrun --standalone --nproc_per_node=4 sida_train.py \
     # --alpha 1 \                            # Scaling factor for gradient-bias correction in SiD
     # --tmax 800 \                           # Maximum diffusion time steps considered for distillation
     # --init_sigma 2.5 \                     # Input noise standard devivation of the generator
@@ -106,12 +106,12 @@ elif [ "$dataset" = 'cifar10-cond' ]; then
     --lsg 100 \
     --lsd 1 \
     --lsg_gan 0.01 \
-    --duration 300 \
+    --duration 100 \
     --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz' \
     --use_gan 1 \
     --metrics fid50k_full \
-    --save_best_and_last 1 
-    #--sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-cond/alpha1.2/network-snapshot-1.200000-713312.pkl'
+    --save_best_and_last 1 \
+    --sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-cond/alpha1.2/network-snapshot-1.200000-713312.pkl'
 
     
 elif [ "$dataset" = 'imagenet64-cond' ]; then
@@ -147,8 +147,8 @@ elif [ "$dataset" = 'imagenet64-cond' ]; then
     --dropout 0.1 \
     --augment 0 \
     --ema 2 \
-    --duration 300 
-    #--sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl'
+    --duration 100 \
+    --sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl'
     
 elif [ "$dataset" = 'ffhq64' ]; then
     torchrun --standalone --nproc_per_node=4 sida_train.py \
@@ -174,7 +174,7 @@ elif [ "$dataset" = 'ffhq64' ]; then
     --lsg 100 \
     --lsd 1 \
     --lsg_gan 0.01 \
-    --duration 200 \
+    --duration 300 \
     --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/ffhq-64x64.npz' \
     --use_gan 1 \
     --metrics fid50k_full \
@@ -182,8 +182,8 @@ elif [ "$dataset" = 'ffhq64' ]; then
     --dropout 0.05 \
     --augment 0.15 \
     --cres 1,2,2,2 \
-    --duration 200 
-    #--sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/ffhq64/alpha1.2/network-snapshot-1.200000-498176.pkl'
+    --duration 100 \
+    --sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/ffhq64/alpha1.2/network-snapshot-1.200000-498176.pkl'
 
            
 elif [ "$dataset" = 'afhq64-v2' ]; then
@@ -210,7 +210,7 @@ elif [ "$dataset" = 'afhq64-v2' ]; then
     --lsg 100 \
     --lsd 1 \
     --lsg_gan 0.01 \
-    --duration 200 \
+    --duration 300 \
     --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/afhqv2-64x64.npz' \
     --use_gan 1 \
     --metrics fid50k_full \
@@ -218,8 +218,8 @@ elif [ "$dataset" = 'afhq64-v2' ]; then
     --dropout 0.05 \
     --augment 0.15 \
     --cres 1,2,2,2 \
-    --duration 200 
-    #--sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/afhq64/alpha1/network-snapshot-1.000000-371712.pkl'
+    --duration 100 \
+    --sid_model 'https://huggingface.co/UT-Austin-PML/SiD/resolve/main/afhq64/alpha1/network-snapshot-1.000000-371712.pkl'
     
 else
     echo "Invalid dataset specified"

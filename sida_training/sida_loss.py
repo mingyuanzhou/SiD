@@ -10,8 +10,7 @@ import torch.nn as nn
 
 
 """Loss functions used in the paper
-"Score identity Distillation: Exponentially Fast Distillation of
-Pretrained Diffusion Models for One-Step Generation"."""
+"Adversarial Score Identity Distillation: Rapidly Surpassing the Teacher in One Step"."""
 
 #----------------------------------------------------------------------------
 @persistence.persistent_class
@@ -126,6 +125,38 @@ class SIDA_EDMLoss:
 
         return loss_fake_score, loss_D
    
+    def generator_loss(self, true_score, fake_score, images, labels=None, augment_pipe=None,alpha=1.2,tmax = 800):
+                
+        sigma_min = 0.002
+        sigma_max = 80
+        rho = 7.0
+        min_inv_rho = sigma_min ** (1 / rho)
+        max_inv_rho = sigma_max ** (1 / rho)
+        rnd_t = torch.rand([images.shape[0], 1, 1, 1], device=images.device)*tmax/1000
+        sigma = (max_inv_rho + (1-rnd_t) * (min_inv_rho - max_inv_rho)) ** rho        
+        y, augment_labels = augment_pipe(images) if augment_pipe is not None else (images, torch.zeros(images.shape[0], 9).to(images.device))
+        n = torch.randn_like(y) * sigma
+        y_real = true_score(y + n, sigma, labels, augment_labels=augment_labels)
+        y_fake = fake_score(y + n, sigma, labels, augment_labels=augment_labels)
+        
+        nan_mask_y = torch.isnan(y).flatten(start_dim=1).any(dim=1)
+        nan_mask_y_real = torch.isnan(y_real).flatten(start_dim=1).any(dim=1)
+        nan_mask_y_fake = torch.isnan(y_fake).flatten(start_dim=1).any(dim=1)
+        nan_mask = nan_mask_y | nan_mask_y_real | nan_mask_y_fake
+
+        # Check if there are any NaN values present
+        if nan_mask.any():
+            # Invert the nan_mask to get a mask of samples without NaNs
+            non_nan_mask = ~nan_mask
+            # Filter out samples with NaNs from y_real and y_fake
+            y = y[non_nan_mask]
+            y_real = y_real[non_nan_mask]
+            y_fake = y_fake[non_nan_mask]
+    
+        with torch.no_grad():
+            weight_factor = abs(y - y_real).to(torch.float32).mean(dim=[1, 2, 3], keepdim=True).clip(min=0.00001)
+        loss = (y_real-y_fake)*( (y_real-y)-alpha*(y_real-y_fake) )/weight_factor 
+        return loss
         
     def __call__(self, fake_score, images, labels=None, augment_pipe=None):
         rnd_normal = torch.randn([images.shape[0], 1, 1, 1], device=images.device)

@@ -5,8 +5,7 @@
 # work. If not, see https://www.apache.org/licenses/LICENSE-2.0.txt
 
 """Distill pretraind diffusion-based generative model using the techniques described in the
-paper "Score identity Distillation: Exponentially Fast Distillation of
-Pretrained Diffusion Models for One-Step Generation"."""
+paper "Adversarial Score Identity Distillation: Rapidly Surpassing the Teacher in One Step"."""
 
 """Main training loop."""
 
@@ -103,9 +102,9 @@ def save_pt(pt, fname):
     torch.save(pt, fname)
 
 
-def calculate_metric(metric,  G, init_sigma, dataset_kwargs, num_gpus, rank, local_rank, device,data_stat):
+def calculate_metric(metric,  G, init_sigma, dataset_kwargs, num_gpus, rank, local_rank, device,data_stat,detector_url):
     return metric_main.calc_metric(metric=metric,G=G, init_sigma=init_sigma,
-        dataset_kwargs=dataset_kwargs, num_gpus=num_gpus, rank=rank, local_rank=local_rank, device=device,data_stat=data_stat)
+        dataset_kwargs=dataset_kwargs, num_gpus=num_gpus, rank=rank, local_rank=local_rank, device=device,data_stat=data_stat,detector_url=detector_url)
 
 def append_line(jsonl_line, fname):
     with open(fname, 'at') as f:
@@ -113,6 +112,8 @@ def append_line(jsonl_line, fname):
 
 
 #----------------------------------------------------------------------------
+
+
 
 def training_loop(
     run_dir             = '.',      # Output directory.
@@ -146,9 +147,12 @@ def training_loop(
     metrics             = None,
     init_sigma          = None,
     data_stat           = None,
-    loss_scaling_G_gan  = 1,       # Loss scaling factor of GAN's generator loss for reducing FP16 under/overflows.
-    loss_scaling_D      = 1,       # Loss scaling factor of GAN's discriminator loss for reducing FP16 under/overflows.
+    loss_scaling_G_gan  = 0.01,    # Loss scaling factor of GAN's generator loss for reducing FP16 under/overflows and controlling the impact of the adversarial loss.
+    loss_scaling_D      = 1,       # Loss scaling factor of GAN's discriminator loss for reducing FP16 under/overflows and controlling the impact of the adversarial loss.
     sid_model           = None,    # pre-distilled SiD generator
+    detector_url        = None,
+    use_gan             = True,
+    save_best_and_last  = True,
 ):
     # Initialize.
     start_time = time.time()
@@ -191,10 +195,10 @@ def training_loop(
      
     if dist.get_rank() == 0:
         with torch.no_grad():
-            images = torch.zeros([batch_gpu, G.img_channels, G.img_resolution, G.img_resolution], device=device)
+            images = torch.zeros([batch_gpu, true_score.img_channels, true_score.img_resolution, true_score.img_resolution], device=device)
             sigma = torch.ones([batch_gpu], device=device)
-            labels = torch.zeros([batch_gpu, G.label_dim], device=device)
-            misc.print_module_summary(G, [images, sigma, labels], max_nesting=2)
+            labels = torch.zeros([batch_gpu, true_score.label_dim], device=device)
+            misc.print_module_summary(true_score, [images, sigma, labels], max_nesting=2)
 
     # Setup loss function and augment_pipe
     loss_fn = dnnlib.util.construct_class_by_name(**loss_kwargs) # training.loss.(VP|VE|EDM)Loss
@@ -257,26 +261,22 @@ def training_loop(
             
             dist.print0('Setting up optimizer...')
             fake_score_ddp = torch.nn.parallel.DistributedDataParallel(fake_score, device_ids=[device])
-            
-            
-            #torch.distributed.barrier()
+            fake_score_optimizer = dnnlib.util.construct_class_by_name(params=fake_score_ddp.module.parameters(), **fake_score_optimizer_kwargs)
             
             G_ddp = torch.nn.parallel.DistributedDataParallel(G, device_ids=[device])
-            
-            
-            fake_score_optimizer = dnnlib.util.construct_class_by_name(params=fake_score_ddp.module.parameters(), **fake_score_optimizer_kwargs)
             g_optimizer = dnnlib.util.construct_class_by_name(params=G_ddp.module.parameters(), **g_optimizer_kwargs)
             
             G_ema = copy.deepcopy(G).eval().requires_grad_(False)
             misc.copy_params_and_buffers(src_module=data['ema'], dst_module=G_ema, require_all=False)
             
+            torch.distributed.barrier()
             del data # conserve memory
             
         
         fake_score_ddp.eval().requires_grad_(False)
         G_ddp.eval().requires_grad_(False)
         
-        
+    dist.print0('Exporting sample images...')     
     # Export sample images.
     grid_size = None
     grid_z = None
@@ -330,6 +330,13 @@ def training_loop(
     del data # conserve memory
     dist.print0('Exporting sample images...')
   
+    if save_best_and_last:
+        if dist.get_rank() == 0:
+            best_fid= float('inf')
+            current_fid = float('inf')
+            previous_best_pkl_filename = None
+            previous_pt_filename = None
+    
     while True:        
         
         #Update fake score network f_psi
@@ -346,16 +353,22 @@ def training_loop(
                 with torch.no_grad():
                     images = G_ddp(z, init_sigma*torch.ones(z.shape[0],1,1,1).to(z.device), labels, augment_labels=torch.zeros(z.shape[0], 9).to(z.device))
                 with misc.ddp_sync(fake_score_ddp, (round_idx == num_accumulation_rounds - 1)):
-                    #loss = loss_fn(fake_score=fake_score_ddp, images=images, labels=labels, augment_pipe=augment_pipe) 
-                    loss,loss_D = loss_fn.fakescore_discriminator_share_encoder_loss(fake_score=fake_score_ddp, images=images, labels=labels, augment_pipe=augment_pipe, real_images=real_images,true_score=true_score,alpha=alpha) 
                     
-                    loss=loss.sum().mul(loss_scaling / batch_gpu_total)
-                    loss_D=loss_D.sum().mul(loss_scaling_D / batch_gpu_total)
+                    if use_gan is False:
+                        loss = loss_fn(fake_score=fake_score_ddp, images=images, labels=labels, augment_pipe=augment_pipe) 
+                        loss=loss.sum().mul(loss_scaling / batch_gpu_total)
+                        loss.backward()
+                        lossD_print =0
+                    else:
+                        loss,loss_D = loss_fn.fakescore_discriminator_share_encoder_loss(fake_score=fake_score_ddp, images=images, labels=labels, augment_pipe=augment_pipe, real_images=real_images,true_score=true_score,alpha=alpha) 
+                        loss=loss.sum().mul(loss_scaling / batch_gpu_total)
+                        loss_D=loss_D.sum().mul(loss_scaling_D / batch_gpu_total)
+                        (loss+loss_D).backward()
+                        lossD_print = loss_D.item()
                     
-                    (loss+loss_D).backward()
+                    
         loss_fake_score_print = loss.item()
         training_stats.report('fake_score_Loss/loss', loss_fake_score_print)
-        lossD_print = loss_D.item()
         training_stats.report('D_Loss/loss', lossD_print)
 
         fake_score_ddp.eval().requires_grad_(False)
@@ -364,8 +377,9 @@ def training_loop(
             if param.grad is not None:
                 torch.nan_to_num(param.grad, nan=0, posinf=1e5, neginf=-1e5, out=param.grad)
 
+        if use_gan:
+            torch.nn.utils.clip_grad_value_(fake_score_ddp.module.parameters(), 1) 
         
-        torch.nn.utils.clip_grad_value_(fake_score_ddp.module.parameters(), 1) 
         fake_score_optimizer.step()
         fake_score_optimizer.zero_grad(set_to_none=True)
 
@@ -381,23 +395,26 @@ def training_loop(
                 with misc.ddp_sync(G_ddp, (round_idx == num_accumulation_rounds - 1)):
                     images = G_ddp(z, init_sigma*torch.ones(z.shape[0],1,1,1).to(z.device), labels, augment_labels=torch.zeros(z.shape[0], 9).to(z.device))
                 
-                        
-                    #loss = loss_fn.generator_loss(true_score=true_score, fake_score=fake_score_ddp, images=images, labels=labels, augment_pipe=None,alpha=alpha,tmax=tmax)
-                    loss,loss_gan = loss_fn.generator_share_encoder_loss(true_score=true_score, fake_score=fake_score_ddp, images=images, labels=labels, augment_pipe=None,alpha=alpha,tmax=tmax)
+                    if use_gan is False:    
+                        loss = loss_fn.generator_loss(true_score=true_score, fake_score=fake_score_ddp, images=images, labels=labels, augment_pipe=None,alpha=alpha,tmax=tmax)
+                        lossG_gan_print = 0
+                    else:
+                        loss,loss_gan = loss_fn.generator_share_encoder_loss(true_score=true_score, fake_score=fake_score_ddp, images=images, labels=labels, augment_pipe=None,alpha=alpha,tmax=tmax)
+                        loss_gan = loss_gan.mean(dim=[1, 2, 3], keepdim=True)*images.shape[1]*images.shape[2]*images.shape[3]
+                        loss_gan=loss_gan.sum().mul(loss_scaling_G_gan / batch_gpu_total)
+                        lossG_gan_print = loss_gan.item()
                     
                     loss=loss.sum().mul(loss_scaling_G / batch_gpu_total)
                     
-                    loss_gan = loss_gan.mean(dim=[1, 2, 3], keepdim=True)*images.shape[1]*images.shape[2]*images.shape[3]
-                    loss_gan=loss_gan.sum().mul(loss_scaling_G_gan / batch_gpu_total)
-                    
-                    if cur_nimg>200*1000:
+
+                    if use_gan is True and cur_nimg>200*1000:
                         (0.5*loss+0.5*loss_gan).backward()
                     else:
                         loss.backward()
         lossG_print = loss.item()
         training_stats.report('G_Loss/loss', lossG_print)
         
-        lossG_gan_print = loss_gan.item()
+        
         training_stats.report('G_gan_Loss/loss', lossG_gan_print)
 
         G_ddp.eval().requires_grad_(False)
@@ -405,7 +422,7 @@ def training_loop(
         for param in G_ddp.module.parameters():
             if param.grad is not None:
                 torch.nan_to_num(param.grad, nan=0, posinf=1e5, neginf=-1e5, out=param.grad)
-        if cur_nimg>100*1000:
+        if use_gan is False or cur_nimg>100*1000:
             g_optimizer.step()
         g_optimizer.zero_grad(set_to_none=True)
 
@@ -464,11 +481,15 @@ def training_loop(
                 dist.print0('Evaluating metrics...')
                 for metric in metrics:
                     result_dict = calculate_metric(metric=metric, G=G_ema, init_sigma=init_sigma,
-                        dataset_kwargs=dataset_kwargs, num_gpus=dist.get_world_size(), rank=dist.get_rank(), local_rank=dist.get_local_rank(), device=device,data_stat=data_stat)
+                        dataset_kwargs=dataset_kwargs, num_gpus=dist.get_world_size(), rank=dist.get_rank(), local_rank=dist.get_local_rank(), device=device,data_stat=data_stat,detector_url=detector_url)
                     if dist.get_rank() == 0:
                         print(result_dict.results)
-                        metric_main.report_metric(result_dict, run_dir=run_dir, snapshot_pkl=f'fakes_{alpha:03f}_{cur_nimg//1000:06d}.png', alpha=alpha)  
+                        metric_main.report_metric(result_dict, run_dir=run_dir, snapshot_pkl=f'fakes_{alpha:03f}_{cur_nimg//1000:06d}.png', alpha=alpha)
+                        if metric=='fid50k_full':
+                            current_fid = result_dict.results.fid50k_full
                     stats_metrics.update(result_dict.results)
+                    
+                    
                 
             data = dict(ema=G_ema)
             for key, value in data.items():
@@ -476,15 +497,43 @@ def training_loop(
                     value = copy.deepcopy(value).eval().requires_grad_(False)
                     data[key] = value.cpu()
                 del value # conserve memory
-                
-            if dist.get_rank() == 0:
-                save_data(data=data, fname=os.path.join(run_dir, f'network-snapshot-{alpha:03f}-{cur_nimg//1000:06d}.pkl'))               
+            
+            if dist.get_rank() == 0:  # Check if this is the master process
+                if save_best_and_last is False:
+                    save_data(data=data, fname=os.path.join(run_dir, f'network-snapshot-{alpha:03f}-{cur_nimg//1000:06d}.pkl'))
+                else:
+                    if current_fid < best_fid:  # Check if the current model is better
+                        best_fid = current_fid
+                        new_best_pkl_filename = os.path.join(run_dir, f'network-snapshot-{alpha:03f}-{cur_nimg//1000:06d}.pkl')
+                        save_data(data=data, fname=new_best_pkl_filename)  # Save the new best model
+                        try:
+                            if previous_best_pkl_filename is not None:
+                                if os.path.exists(previous_best_pkl_filename): 
+                                    os.remove(previous_best_pkl_filename)  # Remove the previous best model file
+                        except OSError as e:
+                                dist.print0(f"Error removing previous pkl: {e}")
+                        previous_best_pkl_filename = new_best_pkl_filename  # Update the reference to the best model file                     
+                    
             del data # conserve memory
 
         if (state_dump_ticks is not None) and (done or cur_tick % state_dump_ticks == 0) and cur_tick != 0 and dist.get_rank() == 0:
             dist.print0(f'saving checkpoint: training-state-{cur_nimg//1000:06d}.pt')
-            save_pt(pt=dict(fake_score=fake_score, G=G, G_ema=G_ema, fake_score_optimizer_state=fake_score_optimizer.state_dict(), g_optimizer_state=g_optimizer.state_dict()), fname=os.path.join(run_dir, f'training-state-{cur_nimg//1000:06d}.pt'))
+            
+            #save_pt(pt=dict(fake_score=fake_score, G=G, G_ema=G_ema, fake_score_optimizer_state=fake_score_optimizer.state_dict(), g_optimizer_state=g_optimizer.state_dict()), fname=os.path.join(run_dir, f'training-state-{cur_nimg//1000:06d}.pt'))
+            
+            save_pt(pt=dict(fake_score_state=fake_score_ddp.module.state_dict(), G_state=G_ddp.module.state_dict(), G_ema_state=G_ema.state_dict(), fake_score_optimizer_state=fake_score_optimizer.state_dict(), g_optimizer_state=g_optimizer.state_dict()), fname=os.path.join(run_dir, f'training-state-{cur_nimg//1000:06d}.pt'))
+            
+            if save_best_and_last is True:
+                try:
+                    if previous_pt_filename is not None:
+                        if os.path.exists(previous_pt_filename):
+                            os.remove(previous_pt_filename)
+                except OSError as e:
+                    dist.print0(f"Error removing previous checkpoint: {e}")
 
+                previous_pt_filename = os.path.join(run_dir, f'training-state-{cur_nimg//1000:06d}.pt')
+            
+                
         # Update logs.
         training_stats.default_collector.update()
         if dist.get_rank() == 0:
