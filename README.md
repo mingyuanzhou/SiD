@@ -1,45 +1,7 @@
+
 # Distilling Pretrained Diffusion-Based Generative Models with SiDA (SiD, SiDA, or SiD²A)
 
 This repository contains the code to reproduce the results from our paper, **"Adversarial Score identity Distillation: Rapidly Surpassing the Teacher in One Step,"** available at [arXiv:2410.14919](https://arxiv.org/abs/2410.14919). The introduced methods—Score identity Distillation (SiD), Adversarial SiD (SiDA), and SiD-Initialized SiDA (SiD²A)—facilitate the distillation of pretrained EDM and EDM2 diffusion models.
-
-
-## Citations
-
-If you find this repository helpful or use our work in your research, please consider citing our paper:
-
-```bibtex
-@article{zhou2024adversarial,
-  title={Adversarial Score Identity Distillation: Rapidly Surpassing the Teacher in One Step},
-  author={Zhou, Mingyuan and Zheng, Huangjie and Gu, Yi and Wang, Zhendong and Huang, Hai},
-  journal={arXiv preprint arXiv:2410.14919},
-  year={2024}
-}
-```
-
-Our work on SiDA builds on prior research, including SiD and SiD-LSA. If relevant, you may also want to cite the following:
-
-### SiD: Score identity Distillation
-
-```bibtex
-@inproceedings{zhou2024score,
-  title={Score Identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation},
-  author={Mingyuan Zhou and Huangjie Zheng and Zhendong Wang and Mingzhang Yin and Hai Huang},
-  booktitle={International Conference on Machine Learning},
-  year={2024}
-}
-```
-
-### SiD-LSG: SiD with Long and Short Guidance for One-step Text-to-Image Generation
-
-```bibtex
-@article{zhou2024long,
-  title={Long and Short Guidance in Score Identity Distillation for One-Step Text-to-Image Generation},
-  author={Mingyuan Zhou and Zhendong Wang and Huangjie Zheng and Hai Huang},
-  journal={arXiv preprint arXiv:2406.01561},
-  url={https://arxiv.org/abs/2406.01561},
-  year={2024}
-}
-```
 
 
 ## State-of-the-Art Performance
@@ -68,14 +30,6 @@ For EDM2 models pretrained on ImageNet 512x512, SiDA achieves the following FID 
 | EDM2-XL (1.1B)                  | 1.379 |
 | EDM2-XXL (1.5B)                 | 1.366 |
 
-
-
-
-## Prerequisites
-
-Before you begin, ensure you have met the following requirements:
-* You have installed the latest version of [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
-* You have a `Windows/Linux/Mac` machine.
 
 ## Installation
 
@@ -110,6 +64,9 @@ After creating the environment, you can activate it by running:
 ```bash
 conda activate sida
 ```
+
+
+
 ### Prepare the Datasets
 
 To prepare the training datasets needed to distill EDM, follow the instructions provided in the [EDM codebase](https://github.com/NVlabs/edm/tree/main?tab=readme-ov-file#preparing-datasets). Once the datasets are ready, place them in the `/data/datasets/` folder with the following names:
@@ -135,6 +92,19 @@ To prepare the ImageNet 512x512 training dataset needed to distill EDM2, follow 
 
 - **For SiDA or SiD-SiDA:**
   - A training dataset is mandatory as it is actively used in the distillation process.
+
+
+
+
+
+### Prepare the Datasets
+
+Follow the instructions provided in the [EDM codebase](https://github.com/NVlabs/edm/tree/main?tab=readme-ov-file#preparing-datasets) to prepare datasets and place them in `/data/datasets/`.
+
+### Important Notes:
+
+- For **SiD**, a training dataset is not required but is used to compute evaluation metrics like FID and IS.
+- For **SiDA** and **SiD²A**, a training dataset is mandatory.
 
 
 ## Usage
@@ -180,9 +150,9 @@ Here are examples for each method:
   ```
 
 
-### Model Checkpoints
+### Checkpoints of one-step generators produced by SiD and SiDA
 
-Distilled models from our work are available at the following locations:
+Distilled one-step generators from our work are available at the following locations:
 
 - **Distilled EDM Models with SiD:**  
   [https://huggingface.co/UT-Austin-PML/SiD/tree/main](https://huggingface.co/UT-Austin-PML/SiD/tree/main)
@@ -193,61 +163,61 @@ Distilled models from our work are available at the following locations:
 - **Distilled EDM2 Models with SiD, SiDA, and SiD²A:**  
   [https://huggingface.co/UT-Austin-PML/SiDA/tree/main/EDM2_distillation](https://huggingface.co/UT-Austin-PML/SiDA/tree/main/EDM2_distillation)
 
-#### Specific Model Checkpoints
+#### Specific One-step Generators distilled from EDM
 The following table provides links to specific checkpoints for EDM distillation:
-| Dataset         | Method    | $\alpha$ | Checkpoint URL                                                                                       |
-|------------------|-----------|----------|-----------------------------------------------------------------------------------------------------|
+| Dataset         | Method    | $\alpha$ | Checkpoint URL                                   |
+|---|---|---|-----------------------------|
 | CIFAR10-Uncond  | SiD       | 1.2      | [cifar10_uncond_sid_alpha1.2](https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl) |
 | CIFAR10-Uncond  | SiDA      | 1.0      | [cifar10_uncond_sida_alpha1-217920.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_uncond_sida_alpha1-217920.pkl) |
 | CIFAR10-Uncond  | SiD²A     | 1.0      | [cifar10_uncond_sid2a_alpha1-028160.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_uncond_sid2a_alpha1-028160.pkl) |
 | CIFAR10-Uncond  | SiD²A     | 1.2      | [cifar10_uncond_sid2a_alpha1.2-022528.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_uncond_sid2a_alpha1.2-022528.pkl) |
-|------------------|-----------|----------|-----------------------------------------------------------------------------------------------------|
+|---|---|---|-----------------------------|
 | CIFAR10-Cond    | SiD       | 1.2      | [cifar10_cond_sid_alpha1.2](https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-cond/alpha1.2/network-snapshot-1.200000-713312.pkl) |
 | CIFAR10-Cond    | SiDA      | 1.0      | [cifar10_cond_sida_alpha1-293184.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_cond_sida_alpha1-293184.pkl) |
 | CIFAR10-Cond    | SiD²A     | 1.0      | [cifar10_cond_sid2a_alpha1-038912.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_cond_sid2a_alpha1-038912.pkl) |
 | CIFAR10-Cond    | SiD²A     | 1.2      | [cifar10_cond_sid2a_alpha1.2-053760.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_cond_sid2a_alpha1.2-053760.pkl) |
-|------------------|-----------|----------|-----------------------------------------------------------------------------------------------------|
+|---|---|---|-----------------------------|
 | ImageNet 64x64  | SiD       | 1.2      | [imagenet_sid_alpha1.2](https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl) |
 | ImageNet 64x64  | SiDA      | 1.0      | [imgnet64_sida_alpha1-249167.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/imgnet64_sida_alpha1-249167.pkl) |
 | ImageNet 64x64  | SiD²A     | 1.0      | [imgnet64_sid2a_alpha1-029499.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/imgnet64_sid2a_alpha1-029499.pkl) |
 | ImageNet 64x64  | SiD²A     | 1.2      | [imgnet64_sid2a_alpha1.2-021471.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/imgnet64_sid2a_alpha1.2-021471.pkl) |
-|------------------|-----------|----------|-----------------------------------------------------------------------------------------------------|
+|---|---|---|-----------------------------|
 | FFHQ64          | SiD       | 1.2      | [ffhq64_sid_alpha1.2](https://huggingface.co/UT-Austin-PML/SiD/resolve/main/ffhq64/alpha1.2/network-snapshot-1.200000-498176.pkl) |
 | FFHQ64          | SiDA      | 1.0      | [ffhq64_sida_alpha1-185856.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/ffhq64_sida_alpha1-185856.pkl) |
 | FFHQ64          | SiD²A     | 1.0      | [ffhq64_sid2a_alpha1-168960.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/ffhq64_sid2a_alpha1-168960.pkl) |
 | FFHQ64          | SiD²A     | 1.2      | [ffhq64_sid2a_alpha1.2-080896.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/ffhq64_sid2a_alpha1.2-080896.pkl) |
-|------------------|-----------|----------|-----------------------------------------------------------------------------------------------------|
+|---|---|---|-----------------------------|
 | AFHQ64-v2       | SiD       | 1.2      | [afhq64_sid_alpha1.2](https://huggingface.co/UT-Austin-PML/SiD/resolve/main/afhq64/alpha1/network-snapshot-1.000000-371712.pkl) |
 | AFHQ64-v2       | SiDA      | 1.0      | [afhq64-v2_sida_alpha1-127488.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/afhq64-v2_sida_alpha1-127488.pkl) |
 | AFHQ64-v2       | SiD²A     | 1.0      | [afhq64-v2_sid2a_alpha1-175104.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/afhq64-v2_sid2a_alpha1-175104.pkl) |
 | AFHQ64-v2       | SiD²A     | 1.2      | [afhq64-v2_sid2a_alpha1.2-175104.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/afhq64-v2_sid2a_alpha1.2-175104.pkl) |
 
 
-
+#### Specific One-step Generators for ImageNet 512x512 distilled from EDM2
 The following table provides links to specific checkpoints for the distillation of EDM2 models pretrained on ImageNet 512x512:
 
-| Model    | Method  | Checkpoint URL                                                                                           |
-|----------|---------|---------------------------------------------------------------------------------------------------------|
+| Model    | Method  | Checkpoint URL                                   |
+|---|---|---|-----------------------------|
 | EDM2-XS  | SiD     | [edm2_img512_xs_sid_alpha1-249360.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xs_sid_alpha1-249360.pkl) |
 | EDM2-XS  | SiDA    | [edm2_img512_xs_sida_alpha1-166410.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xs_sida_alpha1-166410.pkl) |
 | EDM2-XS  | SiD²A   | [edm2_img512_xs_sid2a_alpha1-028674.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xs_sid2a_alpha1-028674.pkl) |
-|----------|---------|---------------------------------------------------------------------------------------------------------|
+|---|---|---|-----------------------------|
 | EDM2-S   | SiD     | [edm2_img512_s_sid_alpha1-192010.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_s_sid_alpha1-192010.pkl) |
 | EDM2-S   | SiDA    | [edm2_img512_s_sida_alpha1-117764.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_s_sida_alpha1-117764.pkl) |
 | EDM2-S   | SiD²A   | [edm2_img512_s_sid2a_alpha1-075268.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_s_sid2a_alpha1-075268.pkl) |
-|----------|---------|---------------------------------------------------------------------------------------------------------|
+|---|---|---|-----------------------------|
 | EDM2-M   | SiD     | [edm2_img512_m_sid_alpha1-226830.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_m_sid_alpha1-226830.pkl) |
 | EDM2-M   | SiDA    | [edm2_img512_m_sida_alpha1-115716.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_m_sida_alpha1-115716.pkl) |
 | EDM2-M   | SiD²A   | [edm2_img512_m_sid2a_alpha1-044036.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_m_sid2a_alpha1-044036.pkl) |
-|----------|---------|---------------------------------------------------------------------------------------------------------|
+|---|---|---|-----------------------------|
 | EDM2-L   | SiD     | [edm2_img512_l_sid_alpha1-203788.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_l_sid_alpha1-203788.pkl) |
 | EDM2-L   | SiDA    | [edm2_img512_l_sida_alpha1-166918.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_l_sida_alpha1-166918.pkl) |
 | EDM2-L   | SiD²A   | [edm2_img512_l_sid2a_alpha1-050182.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_l_sid2a_alpha1-050182.pkl) |
-|----------|---------|---------------------------------------------------------------------------------------------------------|
+|---|---|---|-----------------------------|
 | EDM2-XL  | SiD     | [edm2_img512_xl_sid_alpha1-234004.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid_alpha1-234004.pkl) |
 | EDM2-XL  | SiDA    | [edm2_img512_xl_sid2a_alpha1-024578.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid2a_alpha1-024578.pkl) |
 | EDM2-XL  | SiD²A   | [edm2_img512_xl_sid2a_alpha1-079495.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid2a_alpha1-079495.pkl) |
-|----------|---------|---------------------------------------------------------------------------------------------------------|
+|---|---|---|-----------------------------|
 | EDM2-XXL | SiD     | [edm2_img512_xxl_sida_alpha1-077932.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sida_alpha1-077932.pkl) |
 | EDM2-XXL | SiDA    | [edm2_img512_xxl_sida_alpha1-089816.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sida_alpha1-089816.pkl) |
 | EDM2-XXL | SiD²A   | [edm2_img512_xxl_sid2a_alpha1-029812.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sid2a_alpha1-029812.pkl) |
@@ -355,11 +325,6 @@ torchrun --standalone --nproc_per_node=4  sid_metrics.py  --cond=True --metrics=
 ```
 
 
-## Checkpoints of one-step generators produced by SiD
-
-The one-step generators produced by SiD are provided in [huggingface/UT-Austin-PML/SiD](https://huggingface.co/UT-Austin-PML/SiD/tree/main)
-
-
 ### Acknowledgements
 
 We extend our gratitude to the authors of the **EDM paper** and **EDM2 paper**for sharing their code, which served as the foundational frameworks for developing SiDA. The EDM repository can be found here: [NVlabs/edm](https://github.com/NVlabs/edm). The EDM2 repository can be found here: [NVlabs/edm2](https://github.com/NVlabs/edm2).
@@ -385,6 +350,44 @@ Alternatively, see the GitHub documentation on [creating a pull request](https:/
 ## Contact
 
 If you want to contact me you can reach me at `mingyuanzhou@gmail.com`.
+
+## Citations
+
+If you find this repository helpful or use our work in your research, please consider citing our paper:
+
+```bibtex
+@article{zhou2024adversarial,
+  title={Adversarial Score Identity Distillation: Rapidly Surpassing the Teacher in One Step},
+  author={Zhou, Mingyuan and Zheng, Huangjie and Gu, Yi and Wang, Zhendong and Huang, Hai},
+  journal={arXiv preprint arXiv:2410.14919},
+  year={2024}
+}
+```
+
+Our work on SiDA builds on prior research, including SiD and SiD-LSA. If relevant, you may also want to cite the following:
+
+### SiD: Score identity Distillation
+
+```bibtex
+@inproceedings{zhou2024score,
+  title={Score Identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation},
+  author={Mingyuan Zhou and Huangjie Zheng and Zhendong Wang and Mingzhang Yin and Hai Huang},
+  booktitle={International Conference on Machine Learning},
+  year={2024}
+}
+```
+
+### SiD-LSG: SiD with Long and Short Guidance for One-step Text-to-Image Generation
+
+```bibtex
+@article{zhou2024long,
+  title={Long and Short Guidance in Score Identity Distillation for One-Step Text-to-Image Generation},
+  author={Mingyuan Zhou and Zhendong Wang and Huangjie Zheng and Hai Huang},
+  journal={arXiv preprint arXiv:2406.01561},
+  url={https://arxiv.org/abs/2406.01561},
+  year={2024}
+}
+```
 
 ## License
 
