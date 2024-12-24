@@ -1,3 +1,8 @@
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/adversarial-score-identity-distillation/image-generation-on-imagenet-512x512)](https://paperswithcode.com/sota/image-generation-on-imagenet-512x512?p=adversarial-score-identity-distillation)
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/adversarial-score-identity-distillation/image-generation-on-imagenet-64x64)](https://paperswithcode.com/sota/image-generation-on-imagenet-64x64?p=adversarial-score-identity-distillation)
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/adversarial-score-identity-distillation/image-generation-on-cifar-10)](https://paperswithcode.com/sota/image-generation-on-cifar-10?p=adversarial-score-identity-distillation)
+
+
 
 # Distilling Pretrained Diffusion-Based Generative Models with SiDA (SiD, SiDA, or SiD²A)
 
