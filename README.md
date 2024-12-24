@@ -1,6 +1,26 @@
 # Distilling Pretrained Diffusion-Based Generative Models with SiD
 
-This repository contains the code necessary to replicate the findings of our ICML 2024 paper titled "Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation," available at https://arxiv.org/abs/2404.04057. The technique, Score identity Distillation (SiD), is used to distill pretrained EDM diffusion models.
+This repository now contains **two distinct branches**:
+
+1. **Main Branch:** Focused on Score identity Distillation (SiD) as described in our ICML 2024 paper.
+2. **SiDA Branch:** Focused on Adversarial Score identity Distillation (SiDA), with additional techniques for distilling EDM2 models.
+
+For more details on the SiDA branch, visit: [https://github.com/mingyuanzhou/SiD/tree/sida](https://github.com/mingyuanzhou/SiD/tree/sida).
+
+---
+
+## About This Repository
+
+This repository contains the code necessary to replicate the findings of our ICML 2024 paper titled **"Score identity Distillation: Exponentially Fast Distillation of Pretrained Diffusion Models for One-Step Generation,"** available at [arXiv:2404.04057](https://arxiv.org/abs/2404.04057). The technique, Score identity Distillation (SiD), is used to distill pretrained EDM diffusion models.
+
+### Branch Overview
+
+- **Main Branch:**
+  - Includes the implementation of Score identity Distillation (SiD) as described in the ICML 2024 paper.
+
+- **SiDA Branch:**
+  - Provides the latest advancements in Adversarial Score identity Distillation (SiDA), including techniques for distilling EDM2 models and leveraging adversarial learning.
+
 
 ## Citations 
 If you find our work useful or incorporate our findings in your own research, please consider citing our paper:
