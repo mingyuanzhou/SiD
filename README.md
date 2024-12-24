@@ -166,27 +166,27 @@ Distilled one-step generators from our work are available at the following locat
 #### Specific One-step Generators distilled from EDM
 The following table provides links to specific checkpoints for EDM distillation:
 | Dataset         | Method    | $\alpha$ | Checkpoint URL                                                                                       |
-|                 |           |          |                                                                                                      |
+|------------------|-----------|----------|-----------------------------------------------------------------------------------------------------|
 | CIFAR10-Uncond  | SiD       | 1.2      | [cifar10_uncond_sid_alpha1.2](https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-uncond/alpha1.2/network-snapshot-1.200000-403968.pkl) |
 | CIFAR10-Uncond  | SiDA      | 1.0      | [cifar10_uncond_sida_alpha1-217920.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_uncond_sida_alpha1-217920.pkl) |
 | CIFAR10-Uncond  | SiD²A     | 1.0      | [cifar10_uncond_sid2a_alpha1-028160.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_uncond_sid2a_alpha1-028160.pkl) |
 | CIFAR10-Uncond  | SiD²A     | 1.2      | [cifar10_uncond_sid2a_alpha1.2-022528.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_uncond_sid2a_alpha1.2-022528.pkl) |
-|                 |           |          |                                                                                                      |
+|------------------|-----------|----------|-----------------------------------------------------------------------------------------------------|
 | CIFAR10-Cond    | SiD       | 1.2      | [cifar10_cond_sid_alpha1.2](https://huggingface.co/UT-Austin-PML/SiD/resolve/main/cifar10-cond/alpha1.2/network-snapshot-1.200000-713312.pkl) |
 | CIFAR10-Cond    | SiDA      | 1.0      | [cifar10_cond_sida_alpha1-293184.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_cond_sida_alpha1-293184.pkl) |
 | CIFAR10-Cond    | SiD²A     | 1.0      | [cifar10_cond_sid2a_alpha1-038912.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_cond_sid2a_alpha1-038912.pkl) |
 | CIFAR10-Cond    | SiD²A     | 1.2      | [cifar10_cond_sid2a_alpha1.2-053760.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/cifar10_cond_sid2a_alpha1.2-053760.pkl) |
-|                 |           |          |                                                                                                      |
+|------------------|-----------|----------|-----------------------------------------------------------------------------------------------------|
 | ImageNet 64x64  | SiD       | 1.2      | [imagenet_sid_alpha1.2](https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl) |
 | ImageNet 64x64  | SiDA      | 1.0      | [imgnet64_sida_alpha1-249167.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/imgnet64_sida_alpha1-249167.pkl) |
 | ImageNet 64x64  | SiD²A     | 1.0      | [imgnet64_sid2a_alpha1-029499.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/imgnet64_sid2a_alpha1-029499.pkl) |
 | ImageNet 64x64  | SiD²A     | 1.2      | [imgnet64_sid2a_alpha1.2-021471.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/imgnet64_sid2a_alpha1.2-021471.pkl) |
-|                 |           |          |                                                                                                      |
+|------------------|-----------|----------|-----------------------------------------------------------------------------------------------------|
 | FFHQ64          | SiD       | 1.2      | [ffhq64_sid_alpha1.2](https://huggingface.co/UT-Austin-PML/SiD/resolve/main/ffhq64/alpha1.2/network-snapshot-1.200000-498176.pkl) |
 | FFHQ64          | SiDA      | 1.0      | [ffhq64_sida_alpha1-185856.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/ffhq64_sida_alpha1-185856.pkl) |
 | FFHQ64          | SiD²A     | 1.0      | [ffhq64_sid2a_alpha1-168960.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/ffhq64_sid2a_alpha1-168960.pkl) |
 | FFHQ64          | SiD²A     | 1.2      | [ffhq64_sid2a_alpha1.2-080896.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/ffhq64_sid2a_alpha1.2-080896.pkl) |
-|                 |           |          |                                                                                                      |
+|------------------|-----------|----------|-----------------------------------------------------------------------------------------------------|
 | AFHQ64-v2       | SiD       | 1.2      | [afhq64_sid_alpha1.2](https://huggingface.co/UT-Austin-PML/SiD/resolve/main/afhq64/alpha1/network-snapshot-1.000000-371712.pkl) |
 | AFHQ64-v2       | SiDA      | 1.0      | [afhq64-v2_sida_alpha1-127488.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/afhq64-v2_sida_alpha1-127488.pkl) |
 | AFHQ64-v2       | SiD²A     | 1.0      | [afhq64-v2_sid2a_alpha1-175104.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM_distillation/afhq64-v2_sid2a_alpha1-175104.pkl) |
@@ -197,27 +197,27 @@ The following table provides links to specific checkpoints for EDM distillation:
 The following table provides links to specific checkpoints for the distillation of EDM2 models pretrained on ImageNet 512x512:
 
 | Model    | Method  | Checkpoint URL                                                                                           |
-|          |         |                                                                                                          |
+|----------|---------|---------------------------------------------------------------------------------------------------------|
 | EDM2-XS  | SiD     | [edm2_img512_xs_sid_alpha1-249360.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xs_sid_alpha1-249360.pkl) |
 | EDM2-XS  | SiDA    | [edm2_img512_xs_sida_alpha1-166410.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xs_sida_alpha1-166410.pkl) |
 | EDM2-XS  | SiD²A   | [edm2_img512_xs_sid2a_alpha1-028674.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xs_sid2a_alpha1-028674.pkl) |
-|          |         |                                                                                                          |
+|----------|---------|---------------------------------------------------------------------------------------------------------|
 | EDM2-S   | SiD     | [edm2_img512_s_sid_alpha1-192010.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_s_sid_alpha1-192010.pkl) |
 | EDM2-S   | SiDA    | [edm2_img512_s_sida_alpha1-117764.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_s_sida_alpha1-117764.pkl) |
 | EDM2-S   | SiD²A   | [edm2_img512_s_sid2a_alpha1-075268.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_s_sid2a_alpha1-075268.pkl) |
-|          |         |                                                                                                          |
+|----------|---------|---------------------------------------------------------------------------------------------------------|
 | EDM2-M   | SiD     | [edm2_img512_m_sid_alpha1-226830.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_m_sid_alpha1-226830.pkl) |
 | EDM2-M   | SiDA    | [edm2_img512_m_sida_alpha1-115716.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_m_sida_alpha1-115716.pkl) |
 | EDM2-M   | SiD²A   | [edm2_img512_m_sid2a_alpha1-044036.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_m_sid2a_alpha1-044036.pkl) |
-|          |         |                                                                                                          |
+|----------|---------|---------------------------------------------------------------------------------------------------------|
 | EDM2-L   | SiD     | [edm2_img512_l_sid_alpha1-203788.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_l_sid_alpha1-203788.pkl) |
 | EDM2-L   | SiDA    | [edm2_img512_l_sida_alpha1-166918.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_l_sida_alpha1-166918.pkl) |
 | EDM2-L   | SiD²A   | [edm2_img512_l_sid2a_alpha1-050182.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_l_sid2a_alpha1-050182.pkl) |
-|          |         |                                                                                                          |
+|----------|---------|---------------------------------------------------------------------------------------------------------|
 | EDM2-XL  | SiD     | [edm2_img512_xl_sid_alpha1-234004.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid_alpha1-234004.pkl) |
 | EDM2-XL  | SiDA    | [edm2_img512_xl_sid2a_alpha1-024578.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid2a_alpha1-024578.pkl) |
 | EDM2-XL  | SiD²A   | [edm2_img512_xl_sid2a_alpha1-079495.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid2a_alpha1-079495.pkl) |
-|          |         |                                                                                                          |
+|----------|---------|---------------------------------------------------------------------------------------------------------|
 | EDM2-XXL | SiD     | [edm2_img512_xxl_sida_alpha1-077932.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sida_alpha1-077932.pkl) |
 | EDM2-XXL | SiDA    | [edm2_img512_xxl_sida_alpha1-089816.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sida_alpha1-089816.pkl) |
 | EDM2-XXL | SiD²A   | [edm2_img512_xxl_sid2a_alpha1-029812.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sid2a_alpha1-029812.pkl) |
