@@ -31,8 +31,8 @@ if [ "$dataset" = 'cifar10-uncond' ]; then
     --batch 256 \
     --batch-gpu 32 \
     --data '/data/datasets/cifar10-32x32.zip'  \
-    --outdir '/data/image_experiment/sida-train-runs/cifar10-uncond' \
-    --resume '/data/image_experiment/sida-train-runs/cifar10-uncond' \
+    --outdir '/data/image_experiment/sid-train-runs/cifar10-uncond' \
+    --resume '/data/image_experiment/sid-train-runs/cifar10-uncond' \
     --nosubdir 0 \
     --arch ddpmpp \
     --edm_model cifar10-uncond \
@@ -61,8 +61,8 @@ elif [ "$dataset" = 'cifar10-cond' ]; then
     --batch 256 \
     --batch-gpu 32 \
     --data '/data/datasets/cifar10-32x32.zip'  \
-    --outdir '/data/image_experiment/sida-train-runs/cifar10-cond' \
-    --resume '/data/image_experiment/sida-train-runs/cifar10-cond' \
+    --outdir '/data/image_experiment/sid-train-runs/cifar10-cond' \
+    --resume '/data/image_experiment/sid-train-runs/cifar10-cond' \
     --nosubdir 0 \
     --arch ddpmpp \
     --edm_model cifar10-cond \
@@ -91,8 +91,8 @@ elif [ "$dataset" = 'imagenet64-cond' ]; then
     --batch 8192 \
     --batch-gpu 32 \
     --data '/data/datasets/imagenet-64x64.zip' \
-    --outdir '/data/image_experiment/sida-train-runs/imagenet64-cond' \
-    --resume '/data/image_experiment/sida-train-runs/imagenet64-cond' \
+    --outdir '/data/image_experiment/sid-train-runs/imagenet64-cond' \
+    --resume '/data/image_experiment/sid-train-runs/imagenet64-cond' \
     --nosubdir 0 \
     --arch adm \
     --edm_model imagenet64-cond \
@@ -124,8 +124,8 @@ elif [ "$dataset" = 'ffhq64' ]; then
     --batch 512 \
     --batch-gpu 64 \
     --data '/data/datasets/ffhq-64x64.zip' \
-    --outdir '/data/image_experiment/sida-train-runs/ffhq64' \
-    --resume '/data/image_experiment/sida-train-runs/ffhq64' \
+    --outdir '/data/image_experiment/sid-train-runs/ffhq64' \
+    --resume '/data/image_experiment/sid-train-runs/ffhq64' \
     --nosubdir 0 \
     --arch ddpmpp \
     --edm_model ffhq64 \
@@ -158,8 +158,8 @@ elif [ "$dataset" = 'afhq64-v2' ]; then
     --batch 512 \
     --batch-gpu 64 \
     --data '/data/datasets/ffhq-64x64.zip' \
-    --outdir '/data/image_experiment/sida-train-runs/afhq64-v2' \
-    --resume '/data/image_experiment/sida-train-runs/afhq64-v2' \
+    --outdir '/data/image_experiment/sid-train-runs/afhq64-v2' \
+    --resume '/data/image_experiment/sid-train-runs/afhq64-v2' \
     --nosubdir 0 \
     --arch ddpmpp \
     --edm_model afhq64-v2 \

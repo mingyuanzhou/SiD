@@ -11,7 +11,7 @@ This repository contains the code to reproduce the results from our paper, **"Ad
 
 ## State-of-the-Art Performance
 
-SiDA achieves state-of-the-art performance, surpassing the teacher EDM/EDM2 models across all datasets and model sizes. Remarkably, this is accomplished in a single step, without relying on classifier-free guidance. SiDA sets new benchmarks for efficiency and effectiveness in diffusion distillation.
+SiDA achieves state-of-the-art performance, outperforming the teacher models EDM and EDM2 across all datasets and model sizes. Remarkably, it does so in a single generation step without using classifier-free guidance (CFG). By leveraging real images, SiDA is about ten times faster than its data-free predecessor, SiD, in distilling the teacher diffusion model into a one-step generator that surpasses the teacher. This sets new standards for efficiency and effectiveness in diffusion distillation.
 
 ### Fréchet Inception Distance (FID) Results
 SiDA achieves the following FID scores when distilling EDM:
@@ -74,14 +74,14 @@ conda activate sida
 
 ### Prepare the Datasets
 
-To prepare the training datasets needed to distill EDM, follow the instructions provided in the [EDM codebase](https://github.com/NVlabs/edm/tree/main?tab=readme-ov-file#preparing-datasets). Once the datasets are ready, place them in the `/data/datasets/` folder with the following names:
+To prepare the training datasets needed by SiDA to distill EDM, follow the instructions provided in the [EDM codebase](https://github.com/NVlabs/edm/tree/main?tab=readme-ov-file#preparing-datasets). Once the datasets are ready, place them in the `/data/datasets/` folder with the following names:
 
 - `cifar10-32x32.zip`
 - `imagenet-64x64.zip`
 - `ffhq-64x64.zip`
 - `afhqv2-64x64.zip`
 
-To prepare the ImageNet 512x512 training dataset needed to distill EDM2, follow the instructions provided in the [EDM2 codebase](https://github.com/NVlabs/edm2/tree/main?tab=readme-ov-file#preparing-datasets). Once the dataset is ready, place them in the `/data/datasets/` folder with the following names:
+To prepare the ImageNet 512x512 training dataset needed by SiDA to distill EDM2, follow the instructions provided in the [EDM2 codebase](https://github.com/NVlabs/edm2/tree/main?tab=readme-ov-file#preparing-datasets). Once the dataset is ready, place them in the `/data/datasets/` folder with the following names:
 
 - `img512-sd.zip`
 
@@ -91,7 +91,7 @@ To prepare the ImageNet 512x512 training dataset needed to distill EDM2, follow 
 - **For SiD:**
   - A training dataset is not required for distilling pretrained EDM models. However, it is used in the code to compute evaluation metrics like FID and Inception Score.
   - If you do not need these metrics, you can either:
-    - Provide a dummy dataset.
+    - Provide a dummy dataset. Refer to run_sid_edm2.h for an example using ImageNet 512x512.
     - Disable the evaluation code to run SiD distillation without metrics.
   - Alternatively, if you want to compute these metrics, ensure you provide an `.npz` file of the training dataset.
 
@@ -108,7 +108,7 @@ Follow the instructions provided in the [EDM codebase](https://github.com/NVlabs
 
 ### Important Notes:
 
-- For **SiD**, a training dataset is not required but is used to compute evaluation metrics like FID and IS.
+- For **SiD**, a training dataset is not required for distillation; however, either the training dataset or its summary statistics are necessary to compute evaluation metrics like FID and IS.
 - For **SiDA** and **SiD²A**, a training dataset is mandatory.
 
 
@@ -135,23 +135,23 @@ Once the environment is activated, you can start training by running the provide
   ```
   
 
-### Distilling EDM2 (to be added)
+### Distilling EDM2
 
 Here are examples for each method:
 
 - **SiD:**
   ```bash
-  sh run_sid_v1.sh 'imagenet-edm2-xs'
+  sh run_sid_edm2.sh 'imagenet-edm2-xs'
   ```
 
 - **SiDA:**
   ```bash
-  sh run_sida.sh 'imagenet-edm2-xs'
+  sh run_sida_edm2.sh 'imagenet-edm2-xs'
   ```
 
 - **SiD-SiDA (SiD²A):**
   ```bash
-  sh run_sid_sida.sh 'imagenet-edm2-xs'
+  sh run_sid_sida_edm2.sh 'imagenet-edm2-xs'
   ```
 
 
@@ -288,7 +288,7 @@ You can generate images using the provided scripts, either for EDM or EDM2 model
 - For class-specific generations, specify the class index using the `--class` parameter.
 
 
-### Evaluations
+### Evaluations for SiD/SiDA generators distilled from pretrained EDM models
 
 For ImageNet 64x64, there are two different versions of the training data, each associated with its own set of reference statistics. To ensure apples-to-apples comparisons between EDM and its distilled generators with other diffusion models, `imagenet-64x64.npz` should be used for computing FID (Fréchet Inception Distance). Conversely, for computing Precision and Recall, `VIRTUAL_imagenet64_labeled.npz` should be utilized.
 
@@ -296,7 +296,7 @@ For ImageNet 64x64, there are two different versions of the training data, each 
 
 `VIRTUAL_imagenet64_labeled.npz` is available at [OpenAI](https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/64/VIRTUAL_imagenet64_labeled.npz).
 
-#### Use `sid_generator.py` to generate and save 50,000 images, and compute FID using the saved images
+#### Use `sid_generator.py` to generate and save 50,000 images, and compute FID (and other relevant metrics) using the saved images
 
 ##### Use a single GPU
 ```bash 
@@ -329,10 +329,58 @@ torchrun --standalone --nproc_per_node=4  sid_metrics.py  --cond=True --metrics=
 torchrun --standalone --nproc_per_node=4  sid_metrics.py  --cond=True --metrics='pr50k3_full' --network='https://huggingface.co/UT-Austin-PML/SiD/resolve/main/imagenet64/alpha1.2/network-snapshot-1.200000-939176.pkl' --data='/data/datasets/imagenet-64x64.zip' --data_stat='https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/64/VIRTUAL_imagenet64_labeled.npz'
 ```
 
+### Evaluations for SiD/SiDA Generators Distilled from Pretrained EDM2 Models
+
+Perform 10 random trials for each configuration. Each trial computes the FID using 50,000 randomly generated images.
+
+#### Commands:
+
+For **ImageNet 512 (EDM2-XS)**:
+```bash
+sh sid_metrics_edm2.sh 'imagenet512-xs-sid'
+sh sid_metrics_edm2.sh 'imagenet512-xs-sida'
+sh sid_metrics_edm2.sh 'imagenet512-xs-sid-sida'
+```
+
+For **ImageNet 512 (EDM2-S)**:
+```bash
+sh sid_metrics_edm2.sh 'imagenet512-s-sid'
+sh sid_metrics_edm2.sh 'imagenet512-s-sida'
+sh sid_metrics_edm2.sh 'imagenet512-s-sid-sida'
+```
+
+For **ImageNet 512 (EDM2-M)**:
+```bash
+sh sid_metrics_edm2.sh 'imagenet512-m-sid'
+sh sid_metrics_edm2.sh 'imagenet512-m-sida'
+sh sid_metrics_edm2.sh 'imagenet512-m-sid-sida'
+```
+
+For **ImageNet 512 (EDM2-L)**:
+```bash
+sh sid_metrics_edm2.sh 'imagenet512-l-sid'
+sh sid_metrics_edm2.sh 'imagenet512-l-sida'
+sh sid_metrics_edm2.sh 'imagenet512-l-sid-sida'
+```
+
+For **ImageNet 512 (EDM2-XL)**:
+```bash
+sh sid_metrics_edm2.sh 'imagenet512-xl-sid'
+sh sid_metrics_edm2.sh 'imagenet512-xl-sida'
+sh sid_metrics_edm2.sh 'imagenet512-xl-sid-sida'
+```
+
+For **ImageNet 512 (EDM2-XXL)**:
+```bash
+sh sid_metrics_edm2.sh 'imagenet512-xxl-sid'
+sh sid_metrics_edm2.sh 'imagenet512-xxl-sida'
+sh sid_metrics_edm2.sh 'imagenet512-xxl-sid-sida'
+```
+
 
 ### Acknowledgements
 
-We extend our gratitude to the authors of the **EDM paper** and **EDM2 paper**for sharing their code, which served as the foundational frameworks for developing SiDA. The EDM repository can be found here: [NVlabs/edm](https://github.com/NVlabs/edm). The EDM2 repository can be found here: [NVlabs/edm2](https://github.com/NVlabs/edm2).
+SiDA is built upon SiD, as presented in the main branch. We extend our gratitude to the authors of the **EDM paper** and **EDM2 paper**for sharing their code, which served as the foundational frameworks for developing SiDA. The EDM repository can be found here: [NVlabs/edm](https://github.com/NVlabs/edm). The EDM2 repository can be found here: [NVlabs/edm2](https://github.com/NVlabs/edm2).
 
 
 ### Code Contributions
