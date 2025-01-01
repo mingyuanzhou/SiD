@@ -57,7 +57,7 @@ elif [ "$dataset" = 'imagenet512-xs' ]; then
     # --resume 'image_experiment/sid-train-runs/cifar10-uncond/training-state-????.pt'
 
     #torchrun --standalone --nproc_per_node=4 sida_edm2_train.py \
-    python -m torch.distributed.run --nproc_per_node=3 sida_edm2_train.py \
+    python -m torch.distributed.run --nproc_per_node=4 sida_edm2_train.py \
     --use_gan 0 \
     --force_normalization 1 \
     --return_logvar 1 \

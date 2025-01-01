@@ -71,45 +71,58 @@ conda activate sida
 ```
 
 
+### Preparing the Datasets
 
-### Prepare the Datasets
-
-To prepare the training datasets needed by SiDA to distill EDM, follow the instructions provided in the [EDM codebase](https://github.com/NVlabs/edm/tree/main?tab=readme-ov-file#preparing-datasets). Once the datasets are ready, place them in the `/data/datasets/` folder with the following names:
+#### **For EDM Distillation with SiDA**
+To distill EDM using SiDA, you need to prepare the training datasets. Follow the instructions provided in the [EDM codebase](https://github.com/NVlabs/edm/tree/main?tab=readme-ov-file#preparing-datasets). After preparing the datasets, place them in the `/data/datasets/` folder with the following names:
 
 - `cifar10-32x32.zip`
 - `imagenet-64x64.zip`
 - `ffhq-64x64.zip`
 - `afhqv2-64x64.zip`
 
-To prepare the ImageNet 512x512 training dataset needed by SiDA to distill EDM2, follow the instructions provided in the [EDM2 codebase](https://github.com/NVlabs/edm2/tree/main?tab=readme-ov-file#preparing-datasets). Once the dataset is ready, place them in the `/data/datasets/` folder with the following names:
+---
+
+#### **For EDM2 Distillation with SiDA**
+To distill EDM2 using SiDA, you need to prepare the ImageNet 512x512 training dataset. Follow the instructions provided in the [EDM2 codebase](https://github.com/NVlabs/edm2/tree/main?tab=readme-ov-file#preparing-datasets). Once the dataset is ready, place it in the `/data/datasets/` folder with the following name:
 
 - `img512-sd.zip`
+
+---
+
+#### **For EDM2 Distillation with SiD (Data-Free)**
+SiD, being a data-free distillation method, only requires access to the class labels of the ImageNet 512x512 training dataset. 
+
+1. **Prepare Metadata File**:  
+   Follow the instructions in the [EDM2 codebase](https://github.com/NVlabs/edm2/tree/main?tab=readme-ov-file#preparing-datasets) to create a `dataset.json` file for the labels.
+
+2. **Place Metadata File**:  
+   Save the `dataset.json` file in the following directory:  
+   ```
+   /data/datasets/img512_labels
+   ```
+
+3. **Download Pre-prepared Metadata File**:  
+   Alternatively, you can download the metadata file from:  
+   [Hugging Face: dataset.json](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/dataset.json)  
+
+Ensure all datasets and metadata files are correctly placed before starting the distillation process.
+
 
 
 **Important Notes:**
 
 - **For SiD:**
-  - A training dataset is not required for distilling pretrained EDM models. However, it is used in the code to compute evaluation metrics like FID and Inception Score.
+  - A training dataset is not required for distilling pretrained EDM models. However, either the training dataset or its summary statistics are necessary to compute evaluation metrics like FID and IS.
   - If you do not need these metrics, you can either:
     - Provide a dummy dataset. Refer to run_sid_edm2.h for an example using ImageNet 512x512.
     - Disable the evaluation code to run SiD distillation without metrics.
   - Alternatively, if you want to compute these metrics, ensure you provide an `.npz` file of the training dataset.
 
-- **For SiDA or SiD-SiDA:**
+- **For SiDA or SiD²A:**
   - A training dataset is mandatory as it is actively used in the distillation process.
 
 
-
-
-
-### Prepare the Datasets
-
-Follow the instructions provided in the [EDM codebase](https://github.com/NVlabs/edm/tree/main?tab=readme-ov-file#preparing-datasets) to prepare datasets and place them in `/data/datasets/`.
-
-### Important Notes:
-
-- For **SiD**, a training dataset is not required for distillation; however, either the training dataset or its summary statistics are necessary to compute evaluation metrics like FID and IS.
-- For **SiDA** and **SiD²A**, a training dataset is mandatory.
 
 
 ## Usage
@@ -117,7 +130,7 @@ Follow the instructions provided in the [EDM codebase](https://github.com/NVlabs
 
 ### Distilling EDM
 
-Once the environment is activated, you can start training by running the provided scripts or modules. Adjust the --batch-gpu parameter according to your GPU memory limitations. Here are examples for each method:
+Once the environment is activated, you can start training by running the provided scripts or modules. Adjust the --batch-gpu parameter according to your GPU memory limitations. Here are examples for each method (adjust --batch-gpu as needed to reduce memory usage):
 
 - **SiD:**
   ```bash
@@ -137,7 +150,7 @@ Once the environment is activated, you can start training by running the provide
 
 ### Distilling EDM2
 
-Here are examples for each method:
+Here are examples for each method (adjust --batch-gpu as needed to reduce memory usage):
 
 - **SiD:**
   ```bash

@@ -9,7 +9,7 @@ dataset=$1
 # Decrease --batch-gpu to reduce memory consumption
 
 
-if [ "$dataset" = 'imagenet512-xs_test' ]; then
+if [ "$dataset" = 'test_run' ]; then
     # Command to run torch with specific parameters
     # Many options are optional, such as --data_stat, which will be computed inside the code if not provided
     # Add the option below to load a checkpoint:
@@ -26,15 +26,15 @@ if [ "$dataset" = 'imagenet512-xs_test' ]; then
     --init_sigma 2.5 \
     --batch 2400 \
     --batch-gpu 32 \
-    --outdir '/data/image_experiment/sid-train-runs/edm2-xs/img512-sd-SiDA-cond-edm2-img512-xs-edm2-glr5e-05-lr5e-05-ls1.0_lsg100.0_lsd100.0_lsg_gan0.01-initsigma2.5-gpus4-alpha1.0-batch2048-tmax800-fp16batchgpu32' \
-    --resume '/data/image_experiment/sid-train-runs/edm2-xs/img512-sd-SiDA-cond-edm2-img512-xs-edm2-glr5e-05-lr5e-05-ls1.0_lsg100.0_lsd100.0_lsg_gan0.01-initsigma2.5-gpus4-alpha1.0-batch2048-tmax800-fp16batchgpu32/training-state-002050.pt' \
-    --nosubdir 1 \
+    --outdir '/data/image_experiment/test_run' \
+    --resume '/data/image_experiment/test_run' \
+    --nosubdir 0 \
     --precond 'edm2' \
     --arch 'edm2-img512-xs' \
     --edm_model 'https://nvlabs-fi-cdn.nvidia.com/edm2/posthoc-reconstructions/edm2-img512-xs-2147483-0.135.pkl' \
-    --tick 10 \
-    --snap 50 \
-    --dump 200 \
+    --tick 2 \
+    --snap 5 \
+    --dump 10 \
     --lr 5e-5 \
     --glr 5e-5 \
     --fp16 1 \
@@ -45,7 +45,7 @@ if [ "$dataset" = 'imagenet512-xs_test' ]; then
     --ema 2 \
     --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm2/dataset-refs/img512.pkl' \
     --detector_url 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt' \
-    --metrics fid50k_full \
+    --metrics fid_test \
     --data '/data/datasets/img512-sd.zip' \
     --lsd 100 \
     --lsg_gan 0.01 \
@@ -61,7 +61,7 @@ elif [ "$dataset" = 'imagenet512-xs' ]; then
     # --resume 'image_experiment/sid-train-runs/cifar10-uncond/training-state-????.pt'
 
     #torchrun --standalone --nproc_per_node=4 sida_edm2_train.py \
-    python -m torch.distributed.run --nproc_per_node=3 sida_edm2_train.py \
+    python -m torch.distributed.run --nproc_per_node=4 sida_edm2_train.py \
     --use_gan 1 \
     --force_normalization 1 \
     --return_logvar 1 \

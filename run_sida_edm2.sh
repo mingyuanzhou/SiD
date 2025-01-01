@@ -26,15 +26,15 @@ if [ "$dataset" = 'test_run' ]; then
     --init_sigma 2.5 \
     --batch 2400 \
     --batch-gpu 32 \
-    --outdir '/data/image_experiment/sid-train-runs/edm2-xs' \
-    --resume '/data/image_experiment/sid-train-runs/edm2-xs' \
-    --nosubdir 1 \
+    --outdir '/data/image_experiment/test_run' \
+    --resume '/data/image_experiment/test_run' \
+    --nosubdir 0 \
     --precond 'edm2' \
     --arch 'edm2-img512-xs' \
     --edm_model 'https://nvlabs-fi-cdn.nvidia.com/edm2/posthoc-reconstructions/edm2-img512-xs-2147483-0.135.pkl' \
-    --tick 10 \
-    --snap 10 \
-    --dump 200 \
+    --tick 2 \
+    --snap 5 \
+    --dump 10 \
     --lr 5e-5 \
     --glr 5e-5 \
     --fp16 1 \
