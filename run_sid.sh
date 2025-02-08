@@ -7,6 +7,14 @@ dataset=$1
 #sh run_sid.sh 'cifar10-uncond' 
 
 # Modify --duration to reproduce the reported results
+# 
+# As explicitly stated in the paper and illustrated in the figures, the default setting for 
+# reproducing the reported results was a duration of 500 million (--duration 500), except for 
+# CIFAR-10 conditional under alpha = 1.2, where it was increased to 800, and ImageNet 64×64 
+# under alpha = 1.2, where it was raised to 1000. Additionally, we have released all our 
+# checkpoints for further verification. Setting --duration 100 will produce very competitive 
+# results, as shown in Figures 2–6, but will not match the numbers reported in Tables 1–4.
+# 
 # Decrease --batch-gpu to reduce memory consumption
 
 if [ "$dataset" = 'cifar10-uncond' ]; then
@@ -33,7 +41,7 @@ if [ "$dataset" = 'cifar10-uncond' ]; then
     --fp16 0 \
     --ls 1 \
     --lsg 100 \
-    --duration 100 \
+    --duration 500 \
     --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz'
     #\
     #--resume 'image_experiment/sid-train-runs/cifar10-uncond/00002-cifar10-32x32-uncond-ddpmpp-edmglr1e-05-lr1e-05-initsigma2.5-gpus4-alpha1.2-batch256-tmax800-fp32/training-state-000128.pt'
@@ -59,7 +67,7 @@ elif [ "$dataset" = 'cifar10-cond' ]; then
     --fp16 0 \
     --ls 1 \
     --lsg 100 \
-    --duration 100 \
+    --duration 800 \
     --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/cifar10-32x32.npz'
     
 elif [ "$dataset" = 'imagenet64-cond' ]; then
@@ -86,7 +94,7 @@ elif [ "$dataset" = 'imagenet64-cond' ]; then
     --dropout 0.1 \
     --augment 0 \
     --ema 2 \
-    --duration 100 \
+    --duration 1000 \
     --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/imagenet-64x64.npz'
     
 elif [ "$dataset" = 'ffhq64' ]; then
@@ -113,7 +121,7 @@ elif [ "$dataset" = 'ffhq64' ]; then
     --augment 0.15 \
     --cres 1,2,2,2 \
     --g_beta1 0.9 \
-    --duration 100 \
+    --duration 500 \
     --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/ffhq-64x64.npz'
            
 elif [ "$dataset" = 'afhq64-v2' ]; then
@@ -139,7 +147,7 @@ elif [ "$dataset" = 'afhq64-v2' ]; then
     --dropout 0.05 \
     --augment 0.15 \
     --cres 1,2,2,2 \
-    --duration 100 \
+    --duration 500 \
     --data_stat 'https://nvlabs-fi-cdn.nvidia.com/edm/fid-refs/afhqv2-64x64.npz'
 else
     echo "Invalid dataset specified"
