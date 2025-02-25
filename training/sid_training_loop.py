@@ -327,10 +327,10 @@ def training_loop(
             z = init_sigma*torch.randn_like(images)
             with misc.ddp_sync(G_ddp, (round_idx == num_accumulation_rounds - 1)):
                 images = G_ddp(z, init_sigma*torch.ones(z.shape[0],1,1,1).to(z.device), labels, augment_labels=torch.zeros(z.shape[0], 9).to(z.device))
-            with misc.ddp_sync(fake_score_ddp, False):
-                loss = loss_fn.generator_loss(true_score=true_score, fake_score=fake_score_ddp, images=images, labels=labels, augment_pipe=None,alpha=alpha,tmax=tmax)
-                loss=loss.sum().mul(loss_scaling_G / batch_gpu_total)
-                loss.backward()
+                with misc.ddp_sync(fake_score_ddp, False):
+                    loss = loss_fn.generator_loss(true_score=true_score, fake_score=fake_score_ddp, images=images, labels=labels, augment_pipe=None,alpha=alpha,tmax=tmax)
+                    loss=loss.sum().mul(loss_scaling_G / batch_gpu_total)
+                    loss.backward()
         lossG_print = loss.item()
         training_stats.report('G_Loss/loss', lossG_print)
 
