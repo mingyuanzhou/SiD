@@ -430,7 +430,7 @@ If you find this repository helpful or use our work in your research, please con
 }
 ```
 
-Our work on SiDA builds on prior research, including SiD and SiD-LSA. If relevant, you may also want to cite the following:
+Our work on SiDA builds on prior research, including SiD and SiD-LSG. If relevant, you may also want to cite the following:
 
 ### SiD: Score identity Distillation
 
