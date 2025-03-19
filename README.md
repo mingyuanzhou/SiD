@@ -2,8 +2,8 @@
 
 This repository now contains **two distinct branches**:
 
-1. **Main Branch:** Focused on Score identity Distillation (SiD) as described in our ICML 2024 paper.
-2. **SiDA Branch:** Focused on Adversarial Score identity Distillation (SiDA), with additional techniques for distilling EDM2 models.
+1. **Main Branch:** Focused on Score identity Distillation (SiD) as described in our [ICML 2024 paper](https://openreview.net/forum?id=QhqQJqe0Wq).
+2. **SiDA Branch:** Focused on Adversarial Score identity Distillation (SiDA), with additional techniques for distilling EDM2 models, as described in our [ICLR 2025 paper](https://openreview.net/forum?id=lS2SGfWizd).
 
 For more details on the SiDA branch, visit: [https://github.com/mingyuanzhou/SiD/tree/sida](https://github.com/mingyuanzhou/SiD/tree/sida).
 
