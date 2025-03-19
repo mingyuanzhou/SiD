@@ -32,7 +32,7 @@ If you find our work useful or incorporate our findings in your own research, pl
   year={2024}
 }
 ```
-We also have a follow-up paper, available at https://arxiv.org/abs/2406.01561, that extends our SiD methodology to distill Stable Diffusion models for one-step text-to-image generation:
+We also have a follow-up paper, available at https://arxiv.org/abs/2406.01561 since June 2024 and published at [ICLR 2025](https://openreview.net/forum?id=HMVDiaWMwM), that extends our SiD methodology to distill Stable Diffusion models for one-step text-to-image generation:
 ```bibtex
 @article{zhou2024long,
 title={Long and Short Guidance in Score identity Distillation for One-Step Text-to-Image Generation},
