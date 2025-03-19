@@ -6,7 +6,7 @@
 
 # Distilling Pretrained Diffusion-Based Generative Models with SiDA (SiD, SiDA, or SiD²A)
 
-This repository contains the code to reproduce the results from our paper, **"Adversarial Score identity Distillation: Rapidly Surpassing the Teacher in One Step,"** available at [arXiv:2410.14919](https://arxiv.org/abs/2410.14919). The introduced methods—Score identity Distillation (SiD), Adversarial SiD (SiDA), and SiD-Initialized SiDA (SiD²A)—facilitate the distillation of pretrained EDM and EDM2 diffusion models.
+This repository contains the code to reproduce the results from our ICLR2025 paper: [Adversarial Score identity Distillation: Rapidly Surpassing the Teacher in One Step](https://arxiv.org/abs/2410.14919). The introduced methods—Score identity Distillation (SiD), Adversarial SiD (SiDA), and SiD-Initialized SiDA (SiD²A)—facilitate the distillation of pretrained EDM and EDM2 diffusion models.
 
 
 ## State-of-the-Art Performance
@@ -400,18 +400,6 @@ SiDA is built upon SiD, as presented in the main branch. We extend our gratitude
 - **Mingyuan Zhou**: Led the project and wrote the majority of the code.
 - **Huangjie Zheng, Yi Gu, Zhendong Wang, Hai Huang**: Worked with Mingyuan Zhou to develop subfunctions and verify the code and results.
 
-
-## Contributing to the Project
-
-To contribute to this project, follow these steps:
-
-1. Fork this repository.
-2. Create a new branch: `git checkout -b <branch_name>`.
-3. Make your changes and commit them: `git commit -m '<commit_message>'`
-4. Push to the original branch: `git push origin <project_name>/<location>`
-5. Create the pull request.
-
-Alternatively, see the GitHub documentation on [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
 ## Contact
 
