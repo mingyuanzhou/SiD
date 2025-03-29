@@ -233,16 +233,14 @@ The following table provides links to specific checkpoints for the distillation 
 | EDM2-L   | SiD²A   | [edm2_img512_l_sid2a_alpha1-050182.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_l_sid2a_alpha1-050182.pkl) |
 |----------|---------|---------------------------------------------------------------------------------------------------------|
 | EDM2-XL  | SiD     | [edm2_img512_xl_sid_alpha1-234004.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid_alpha1-234004.pkl) |
-| EDM2-XL  | SiDA    | [edm2_img512_xl_sid2a_alpha1-024578.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid2a_alpha1-024578.pkl) |
+| EDM2-XL  | SiDA    | [edm2_img512_xl_sida_alpha1-167698.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sida_alpha1-167698.pkl) |
 | EDM2-XL  | SiD²A   | [edm2_img512_xl_sid2a_alpha1-079495.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid2a_alpha1-079495.pkl) |
 |----------|---------|---------------------------------------------------------------------------------------------------------|
-| EDM2-XXL | SiD     | [edm2_img512_xxl_sida_alpha1-077932.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sida_alpha1-077932.pkl) |
+| EDM2-XXL | SiD     | [edm2_img512_xxl_sid_alpha1-077932.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sid_alpha1-077932.pkl) |
 | EDM2-XXL | SiDA    | [edm2_img512_xxl_sida_alpha1-089816.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sida_alpha1-089816.pkl) |
 | EDM2-XXL | SiD²A   | [edm2_img512_xxl_sid2a_alpha1-029812.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sid2a_alpha1-029812.pkl) |
 
-
 ### Generation
-
 
 #### Generate Images and Save Them as `out/*.png` and `out.npz`
 
