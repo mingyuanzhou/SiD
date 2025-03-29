@@ -26,10 +26,10 @@ model=$1
 # | EDM2-L   | SiD²A   | [edm2_img512_l_sid2a_alpha1-050182.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_l_sid2a_alpha1-050182.pkl) |
 # |----------|---------|---------------------------------------------------------------------------------------------------------|
 # | EDM2-XL  | SiD     | [edm2_img512_xl_sid_alpha1-234004.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid_alpha1-234004.pkl) |
-# | EDM2-XL  | SiDA    | [edm2_img512_xl_sid2a_alpha1-024578.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid2a_alpha1-024578.pkl) |
+# | EDM2-XL  | SiDA    | [edm2_img512_xl_sida_alpha1-167698.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sida_alpha1-167698.pkl) |
 # | EDM2-XL  | SiD²A   | [edm2_img512_xl_sid2a_alpha1-079495.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid2a_alpha1-079495.pkl) |
 # |----------|---------|---------------------------------------------------------------------------------------------------------|
-# | EDM2-XXL | SiD     | [edm2_img512_xxl_sida_alpha1-077932.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sida_alpha1-077932.pkl) |
+# | EDM2-XXL | SiD     | [edm2_img512_xxl_sid_alpha1-077932.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sid_alpha1-077932.pkl) |
 # | EDM2-XXL | SiDA    | [edm2_img512_xxl_sida_alpha1-089816.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sida_alpha1-089816.pkl) |
 # | EDM2-XXL | SiD²A   | [edm2_img512_xxl_sid2a_alpha1-029812.pkl](https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sid2a_alpha1-029812.pkl) |
 
@@ -276,7 +276,7 @@ elif [ "$model" = 'imagenet512-xl-sida' ]; then
     --arch 'edm2-img512-xl' \
     --outdir '/data/image_experiment/edm2-xl-metrics-sida' \
     --nosubdir 1 \
-    --sid_model 'https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sid2a_alpha1-024578.pkl'
+    --sid_model 'https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xl_sida_alpha1-167698.pkl'
 
 elif [ "$model" = 'imagenet512-xl-sid-sida' ]; then
     python -m torch.distributed.run --nproc_per_node=4 sida_edm2_train.py \
@@ -313,7 +313,7 @@ elif [ "$model" = 'imagenet512-xxl-sid' ]; then
     --arch 'edm2-img512-xxl' \
     --outdir '/data/image_experiment/edm2-xxl-metrics-sid' \
     --nosubdir 1 \
-    --sid_model 'https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sida_alpha1-077932.pkl'
+    --sid_model 'https://huggingface.co/UT-Austin-PML/SiDA/resolve/main/EDM2_distillation/edm2_img512_xxl_sid_alpha1-077932.pkl'
 
 elif [ "$model" = 'imagenet512-xxl-sida' ]; then
     python -m torch.distributed.run --nproc_per_node=4 sida_edm2_train.py \
